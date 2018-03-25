@@ -12,5 +12,5 @@
 	public interface EventSystem<T extends Event> {
 
 		public List<T> bootstrap();
-		public List<T> evolve(final double time);
+		public List<T> evolve(final Event event);
 	}

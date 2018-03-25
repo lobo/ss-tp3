@@ -51,12 +51,16 @@
 			return this;
 		}
 
+		public double getLength() {
+			return length;
+		}
+
 		protected boolean addWithoutCollision(
 				final double radius, final double speed, final double mass) {
 			final MassiveParticle particle = newParticle(radius, speed, mass);
 			final boolean collide = particles
 					.stream()
-					.anyMatch(particle::collide);
+					.anyMatch(particle::overlap);
 			if (!collide) particles.add(particle);
 			return !collide;
 		}

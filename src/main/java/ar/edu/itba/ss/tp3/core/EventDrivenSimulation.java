@@ -1,6 +1,8 @@
 
 	package ar.edu.itba.ss.tp3.core;
 
+	import static java.util.Comparator.comparingDouble;
+
 	import java.util.List;
 	import java.util.PriorityQueue;
 
@@ -23,9 +25,9 @@
 		public EventDrivenSimulation(
 				final EventSystem<? extends Event> system,
 				final long maxEvents, final double maxTime) {
-			this.events = new PriorityQueue<>();
-			this.system = system;
+			this.events = new PriorityQueue<>(comparingDouble(Event::getTime));
 			this.events.addAll(system.bootstrap());
+			this.system = system;
 			this.maxEvents = maxEvents;
 			this.maxTime = maxTime;
 		}
@@ -36,10 +38,9 @@
 				final Event event = events.poll();
 				if (event.isInvalid()) {}
 				else {
-					final double time = event.getTime();
 					if (maxEvents < ++evolutions) break;
-					if (maxTime < time) break;
-					final List<? extends Event> nextEvents = system.evolve(time);
+					if (maxTime < event.getTime()) break;
+					final List<? extends Event> nextEvents = system.evolve(event);
 					events.addAll(nextEvents);
 				}
 			}

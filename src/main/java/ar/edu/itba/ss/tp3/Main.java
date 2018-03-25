@@ -24,8 +24,8 @@
 			final double R = 0.005;			// Radio de las partículas
 			final double RBig = 0.05;		// Radio distinguido
 			final double speed = 0.1;		// Rapidez máxima
-			final double mass = 0.0001;		// Masa de las partículas
-			final double massBig = 0.1;		// Masa distinguida
+			final double mass = 0.0001;		// Masa de las partículas (en Kg.)
+			final double massBig = 0.1;		// Masa distinguida (en Kg.)
 			//final double T = 300.0;		// Temperatura del sistema
 			//final double Δt = 0.1;		// Intervalo de animación
 
