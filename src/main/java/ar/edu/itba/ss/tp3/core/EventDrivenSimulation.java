@@ -34,12 +34,14 @@
 
 		public void run() {
 			long evolutions = 0;
+			double time = 0;
 			while (!events.isEmpty()) {
 				final Event event = events.poll();
-				if (event.isInvalid()) {}
-				else {
+				if (system.isValid(event)) {
+					System.out.println("Time: " + time);
+					time += event.getTime();
 					if (maxEvents < ++evolutions) break;
-					if (maxTime < event.getTime()) break;
+					if (maxTime < time) break;
 					final List<? extends Event> nextEvents = system.evolve(event);
 					events.addAll(nextEvents);
 				}

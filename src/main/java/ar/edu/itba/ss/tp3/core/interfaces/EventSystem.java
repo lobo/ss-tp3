@@ -13,4 +13,5 @@
 
 		public List<T> bootstrap();
 		public List<T> evolve(final Event event);
+		public boolean isValid(final Event event);
 	}

@@ -17,7 +17,7 @@
 
 			System.out.println("A brownian motion...");
 
-			final int N = 10;				// Cantidad de partículas
+			final int N = 100;				// Cantidad de partículas
 			final long E = 100;				// Cantidad máxima de eventos
 			final double tMax = 60.0;		// Tiempo máximo de simulación
 			final double L = 5.0;			// Dimensión del espacio
@@ -28,6 +28,21 @@
 			final double massBig = 0.1;		// Masa distinguida (en Kg.)
 			//final double T = 300.0;		// Temperatura del sistema
 			//final double Δt = 0.1;		// Intervalo de animación
+
+			/*
+			EventDrivenSimulation.of(ParticleCollider.of(N)
+					.from(MassiveGenerator
+						.withBrownianMotion(RBig, 0, massBig)
+						.over(L)
+						.radius(R)
+						.speed(speed)
+						.mass(mass)
+						.build())
+					.build())
+				.limitedBy(tMax)
+				.limitedBy(E)
+				.run();
+			*/
 
 			new EventDrivenSimulation(
 				new ParticleCollider(

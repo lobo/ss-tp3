@@ -9,6 +9,5 @@
 
 	public interface Event {
 
-		public boolean isInvalid();
 		public double getTime();
 	}

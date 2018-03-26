@@ -37,15 +37,16 @@
 		}
 
 		public double timeToVerticalCollision(final double length) {
-			return (0 < vy)?
+			return Math.abs((0 < vy)?
 					(length - radius - y) / vy :
-					(radius - y) / vy;
+					(radius - y) / vy);
 		}
 
 		public double timeToHorizontalCollision(final double length) {
-			return (0 < vx)?
+			//System.out.println("Vx: " + vx + " | L: " + length + ", R: " + radius);
+			return Math.abs((0 < vx)?
 					(length - radius - x) / vx :
-					(radius - x) / vx;
+					(radius - x) / vx);
 		}
 
 		public double timeToCollide(final MassiveParticle particle) {

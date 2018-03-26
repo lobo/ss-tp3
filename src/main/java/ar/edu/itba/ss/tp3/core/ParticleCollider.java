@@ -2,7 +2,10 @@
 	package ar.edu.itba.ss.tp3.core;
 
 	import java.util.ArrayList;
+	import java.util.Arrays;
 	import java.util.List;
+
+	import static java.util.stream.Collectors.toList;
 
 	import ar.edu.itba.ss.tp3.core.interfaces.Event;
 	import ar.edu.itba.ss.tp3.core.interfaces.EventSystem;
@@ -15,19 +18,29 @@
 
 	public class ParticleCollider implements EventSystem<Collision> {
 
+		protected final long [] wallCollisions;
+		protected final long [] particleCollisions;
+
 		protected final List<MassiveParticle> particles;
 		protected final MassiveGenerator generator;
 		protected final int size;
+		protected double length;
 
 		public ParticleCollider(
 				final MassiveGenerator generator, final int size) {
 			this.particles = generator.create(size).getParticles();
 			this.generator = generator;
 			this.size = size;
+			this.length = generator.getLength();
+			this.wallCollisions = new long [particles.size()];
+			this.particleCollisions = new long [particles.size()];
+			Arrays.fill(wallCollisions, 0);
+			Arrays.fill(particleCollisions, 0);
 		}
 
+		@Override
 		public List<Collision> bootstrap() {
-			return impendingCollisions();
+			return imminentCollisions();
 		}
 
 		@Override
@@ -39,34 +52,92 @@
 
 			// Ejecutar colisión:
 			final List<Integer> ids = collision.getIDs();
-			final List<MassiveParticle> particles = collision.collide();
-			for (int i = 0; i < particles.size(); ++i) {
-				this.particles.set(ids.get(i), particles.get(i));
-			}
+			final List<MassiveParticle> particles = ids.stream()
+					.filter(i -> 0 <= i)
+					.map(i -> this.particles.get(i))
+					.collect(toList());
 
-			return impendingCollisions();
+			final List<MassiveParticle> collided = collision.collide(particles);
+			for (int i = 0; i < collided.size(); ++i)
+				if (collided.get(i) != null) {
+					this.particles.set(ids.get(i), collided.get(i));
+					if (collision.getType() == CollisionType.OVER_PARTICLE)
+						++particleCollisions[ids.get(i)];
+					else
+						++wallCollisions[ids.get(i)];
+				}
+
+			return imminentCollisions();
 		}
 
-		protected List<Collision> impendingCollisions() {
-			// generar colisiones iniciales
-			// para cada partícula
-			// verificar si choca contra otra (si pasa, verificar contra la pared?)
-			// sino, verificar si choca con la pared (siempre va a pasar esto)
-			/*
-			* para cada partícula p1 verifico el tiempo de colisión con el resto (p2)
-			* deben ser distintas. Si el tiempo no es infinito, genero un evento de colisión
-			* colecto todos los eventos de esa partícula en un mapa (p1, optional(p2))
-			* o bien, cada colisión posee la partícula y opcionalmente el objetivo
-			* tipos de colisión?
-			* puedo tener 3 tipos, pero todos devuelven Tc.
-			* con este Tc armo un evento que contiene la información necesaria.
-			* ...
-			* al evolucionar, necesito mover las trayectorias y ejecutar el evento propiamente dicho
-			* ejecutarlo implica generar 1 o 2 partículas nuevas (Lista de partículas)
-			* reemplazar las viejas (usar índices, no id's, sino no tiene sentido)
-			* actualizar la cuenta de colisiones
-			* invalidar eventos?
-			*/
-			return new ArrayList<>();
+		@Override
+		public boolean isValid(final Event event) {
+			final Collision collision = (Collision) event;
+			final List<Long> collisions = collision.getCollisions();
+			final List<Long> actualCollisions = collision.getIDs().stream()
+				.filter(i -> 0 <= i)
+				.map(i -> wallCollisions[i] + particleCollisions[i])
+				.collect(toList());
+			for (int i = 0; i < actualCollisions.size(); ++i)
+				if (collisions.get(i) < actualCollisions.get(i)) {
+					System.out.println("Invalidated!");
+					return false;
+				}
+			return true;
+		}
+
+		protected List<Collision> imminentCollisions() {
+			final List<Collision> collisions = new ArrayList<>();
+			int i = 0;
+			for (final MassiveParticle p1 : particles) {
+				final long c1 = wallCollisions[i] + particleCollisions[i];
+				final double th = p1.timeToHorizontalCollision(length);
+				final double tv = p1.timeToVerticalCollision(length);
+				int j = 0, id2 = -1;
+				double minTc = Double.POSITIVE_INFINITY;
+				for (final MassiveParticle p2 : particles) {
+					if (p1 != p2) {
+						final double tc = p1.timeToCollide(p2);
+						if (tc < minTc) {
+							minTc = tc;
+							id2 = j;
+						}
+					}
+					++j;
+				}
+				final CollisionType type = inferType(th, tv, minTc);
+				System.out.println("Type: " + type);
+				final long c2 = (id2 < 0)?
+						-1 :
+						wallCollisions[id2] + particleCollisions[id2];
+				if (!isStale(th, tv, minTc))
+					collisions.add(new Collision(
+						type,
+						impactTime(th, tv, minTc),
+						new Long [] {c1, c2},
+						i, id2));
+				++i;
+			}
+			return collisions;
+		}
+
+		protected CollisionType inferType(
+				final double th, final double tv, final double tc) {
+			if (th <= tc && th <= tv) return CollisionType.OVER_HORIZONTAL_WALL;
+			else if (tv <= tc && tv <= th) return CollisionType.OVER_VERTICAL_WALL;
+			else return CollisionType.OVER_PARTICLE;
+		}
+
+		protected boolean isStale(
+				final double th, final double tv, final double tc) {
+			return Double.isInfinite(th) &&
+					Double.isInfinite(tv) &&
+					Double.isInfinite(tc);
+		}
+
+		protected double impactTime(
+				final double th, final double tv, final double tc) {
+			System.out.println("Impacts: (" + th + ", " + tv + ", " + tc + ")");
+			return Math.min(th, Math.min(tv, tc));
 		}
 	}

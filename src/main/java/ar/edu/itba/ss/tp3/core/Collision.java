@@ -13,32 +13,50 @@
 		* contiene.</p>
 		*/
 
-	public class Collision implements Event {
+	public class Collision implements Event { // Hacer un builder!!!
 
+		protected final List<Long> collisions;
 		protected final List<Integer> ids;
-		protected final List<MassiveParticle> particles;
 		protected final CollisionType type;
+		protected final double time;
 
 		public Collision(
-				final Integer [] ids,
-				final MassiveParticle ... particles) {
+				final CollisionType type,
+				final double time,
+				final Long [] collisions,
+				final Integer ... ids) {
+			this.collisions = Arrays.asList(collisions);
 			this.ids = Arrays.asList(ids);
-			this.particles = Arrays.asList(particles);
-			this.type = CollisionType.OVER_PARTICLE;
+			this.type = type;
+			this.time = time;
+		}
+
+		@Override
+		public double getTime() {
+			return time;
+		}
+
+		public List<Long> getCollisions() {
+			return collisions;
 		}
 
 		public List<Integer> getIDs() {
 			return ids;
 		}
 
-		public List<MassiveParticle> collide() {
+		public CollisionType getType() {
+			return type;
+		}
+
+		public List<MassiveParticle> collide(
+				final List<MassiveParticle> particles) {
 			switch (type) {
 				case OVER_HORIZONTAL_WALL: {
-					particles.replaceAll(MassiveParticle::horizontalCollide);
+					particles.set(0, particles.get(0).horizontalCollide());
 					break;
 				}
 				case OVER_VERTICAL_WALL: {
-					particles.replaceAll(MassiveParticle::verticalCollide);
+					particles.set(0, particles.get(0).verticalCollide());
 					break;
 				}
 				case OVER_PARTICLE: {
@@ -55,15 +73,5 @@
 				}
 			}
 			return particles;
-		}
-
-		@Override
-		public boolean isInvalid() {
-			return false;
-		}
-
-		@Override
-		public double getTime() {
-			return 0;
 		}
 	}
