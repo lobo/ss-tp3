@@ -18,31 +18,42 @@
 		protected final double radius;
 		protected final double speed;
 		protected final double mass;
+		protected double availableArea;
 
-		public MassiveGenerator(
-				final double length, final double radius,
-				final double speed, final double mass) {
-			this.particles = new ArrayList<>();
-			this.length = length;
-			this.radius = radius;
-			this.speed = speed;
-			this.mass = mass;
+		public MassiveGenerator(final Builder builder) {
+			System.out.println(
+				"Massive Generator (L = " + builder.length +
+				" [m], R = " + builder.radius +
+				" [m], Speed = " + builder.speed +
+				" [m/s], Mass = " + builder.mass + " [kg])");
+			this.availableArea = builder.availableArea;
+			this.particles = builder.particles;
+			this.length = builder.length;
+			this.radius = builder.radius;
+			this.speed = builder.speed;
+			this.mass = builder.mass;
+		}
+
+		public static Builder over(final double length) {
+			return new Builder(length);
 		}
 
 		public List<MassiveParticle> getParticles() {
 			return particles;
 		}
 
-		public MassiveGenerator withBrownianMotion(
-				final double radius, final double speed, final double mass) {
-			while (!addWithoutCollision(radius, speed, mass));
-			return this;
-		}
-
 		public MassiveGenerator create(final int size) {
 			final int limit = particles.size() + size;
-			while (particles.size() < limit)
+			final double estimatedArea = size * Math.PI * radius * radius;
+			System.out.println("\tTotal area: " + length * length + " [m^2]");
+			if (availableArea < estimatedArea)
+				throw new IllegalStateException(
+					"No hay espacio para generar tantas partículas.");
+			while (particles.size() < limit) {
 				addWithoutCollision(radius, speed, mass);
+				System.out.print("\t\tLoaded particles: " + particles.size() + "\r");
+			}
+			System.out.println("\n\tAvailable area: " + availableArea + " [m^2]");
 			return this;
 		}
 
@@ -57,23 +68,78 @@
 
 		protected boolean addWithoutCollision(
 				final double radius, final double speed, final double mass) {
-			final MassiveParticle particle = newParticle(radius, speed, mass);
-			final boolean collide = particles
-					.stream()
-					.anyMatch(particle::overlap);
-			if (!collide) particles.add(particle);
-			return !collide;
+			this.availableArea -= Math.PI * radius * radius;
+			return Builder.addWithoutCollision(particles, length, radius, speed, mass);
 		}
 
-		protected MassiveParticle newParticle(
-				final double radius, final double speed, final double mass) {
-			final double bound = length - 2 * radius;
-			return new MassiveParticle(
-				radius + bound * Math.random(),
-				radius + bound * Math.random(),
-				radius,
-				2 * speed * (Math.random() - 0.5),
-				2 * speed * (Math.random() - 0.5),
-				mass);
+		public static class Builder {
+
+			protected final List<MassiveParticle> particles;
+			protected double length = 1.0;
+			protected double radius = 0.001;
+			protected double speed = 0.1;
+			protected double mass = 0.001;
+			protected double availableArea = 1.0;
+
+			public Builder(final double length) {
+				this.particles = new ArrayList<>();
+				this.length = length;
+				this.availableArea = length * length;
+			}
+
+			public MassiveGenerator build() {
+				return new MassiveGenerator(this);
+			}
+
+			public Builder withBrownianMotion(
+					final double radius, final double speed, final double mass) {
+				while (!addWithoutCollision(
+						this.particles, this.length, radius, speed, mass));
+				this.availableArea -= Math.PI * radius * radius;
+				System.out.println(
+					"Distinguished Particle (R = " + radius +
+					" [m], Speed = " + speed +
+					" [m/s], Mass = " + mass + " [kg])");
+				return this;
+			}
+
+			public Builder radius(final double radius) {
+				this.radius = radius;
+				return this;
+			}
+
+			public Builder speed(final double speed) {
+				this.speed = speed;
+				return this;
+			}
+
+			public Builder mass(final double mass) {
+				this.mass = mass;
+				return this;
+			}
+
+			protected static MassiveParticle newParticle(
+					final double length,
+					final double radius, final double speed, final double mass) {
+				final double bound = length - 2 * radius;
+				return new MassiveParticle(
+					radius + bound * Math.random(),
+					radius + bound * Math.random(),
+					radius,
+					2 * speed * (Math.random() - 0.5),
+					2 * speed * (Math.random() - 0.5),
+					mass);
+			}
+
+			protected static boolean addWithoutCollision(
+					final List<MassiveParticle> particles, final double length,
+					final double radius, final double speed, final double mass) {
+				final MassiveParticle particle = newParticle(length, radius, speed, mass);
+				final boolean collide = particles
+						.stream()
+						.anyMatch(particle::overlap);
+				if (!collide) particles.add(particle);
+				return !collide;
+			}
 		}
 	}

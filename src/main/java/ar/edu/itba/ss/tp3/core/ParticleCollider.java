@@ -24,16 +24,22 @@
 		protected final List<MassiveParticle> particles;
 		protected final MassiveGenerator generator;
 		protected final int size;
-		protected double length;
+		protected final double length;
 
-		public ParticleCollider(
-				final MassiveGenerator generator, final int size) {
-			this.particles = generator.create(size).getParticles();
-			this.generator = generator;
-			this.size = size;
-			this.length = generator.getLength();
-			this.wallCollisions = new long [particles.size()];
-			this.particleCollisions = new long [particles.size()];
+		public ParticleCollider(final Builder builder) {
+			System.out.println(
+				"Particle Collider (N = " + builder.size + ")");
+			this.particles = builder.generator
+					.create(builder.size)
+					.getParticles();
+			if (builder.size < this.particles.size())
+				System.out.println(
+					"\t\t...with Brownian Motion");
+			this.generator = builder.generator;
+			this.size = builder.size;
+			this.length = builder.generator.getLength();
+			this.wallCollisions = new long [this.particles.size()];
+			this.particleCollisions = new long [this.particles.size()];
 			Arrays.fill(wallCollisions, 0);
 			Arrays.fill(particleCollisions, 0);
 		}
@@ -47,7 +53,7 @@
 		public List<Collision> evolve(final Event event) {
 			final Collision collision = (Collision) event;
 			final double time = collision.getTime();
-			/**/System.out.println("Evolve to: " + time + " sec.");
+			//System.out.println("Evolve to: " + time + " sec.");
 			this.particles.replaceAll(p -> p.move(time));
 
 			// Ejecutar colisión:
@@ -80,7 +86,7 @@
 				.collect(toList());
 			for (int i = 0; i < actualCollisions.size(); ++i)
 				if (collisions.get(i) < actualCollisions.get(i)) {
-					System.out.println("Invalidated!");
+					//System.out.println("Invalidated!");
 					return false;
 				}
 			return true;
@@ -106,16 +112,16 @@
 					++j;
 				}
 				final CollisionType type = inferType(th, tv, minTc);
-				System.out.println("Type: " + type);
+				//System.out.println("Type: " + type);
 				final long c2 = (id2 < 0)?
 						-1 :
 						wallCollisions[id2] + particleCollisions[id2];
 				if (!isStale(th, tv, minTc))
-					collisions.add(new Collision(
-						type,
-						impactTime(th, tv, minTc),
-						new Long [] {c1, c2},
-						i, id2));
+					collisions.add(Collision.type(type)
+						.at(impactTime(th, tv, minTc))
+						.of(i, id2)
+						.with(c1, c2)
+						.build());
 				++i;
 			}
 			return collisions;
@@ -137,7 +143,33 @@
 
 		protected double impactTime(
 				final double th, final double tv, final double tc) {
-			System.out.println("Impacts: (" + th + ", " + tv + ", " + tc + ")");
+			//System.out.println("Impacts: (" + th + ", " + tv + ", " + tc + ")");
 			return Math.min(th, Math.min(tv, tc));
+		}
+
+		public static Builder of(final int size) {
+			return new Builder(size);
+		}
+
+		public static class Builder {
+
+			protected final int size;
+			protected MassiveGenerator generator;
+
+			public Builder(final int size) {
+				this.size = size;
+			}
+
+			public ParticleCollider build() {
+				if (generator == null)
+					throw new IllegalStateException(
+						"El colisionador necesita un generador de partículas.");
+				return new ParticleCollider(this);
+			}
+
+			public Builder from(final MassiveGenerator generator) {
+				this.generator = generator;
+				return this;
+			}
 		}
 	}
