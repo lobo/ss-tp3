@@ -4,11 +4,13 @@
 	import java.util.ArrayList;
 	import java.util.Arrays;
 	import java.util.List;
+	import java.util.function.BiConsumer;
 
 	import static java.util.stream.Collectors.toList;
 
 	import ar.edu.itba.ss.tp3.core.interfaces.Event;
 	import ar.edu.itba.ss.tp3.core.interfaces.EventSystem;
+	import ar.edu.itba.ss.tp3.core.interfaces.Generator;
 
 		/**
 		* <p>Un colisionador de partículas basado en eventos. En particular,
@@ -21,8 +23,9 @@
 		protected final long [] wallCollisions;
 		protected final long [] particleCollisions;
 
+		protected final BiConsumer<Collision, List<MassiveParticle>> spy;
 		protected final List<MassiveParticle> particles;
-		protected final MassiveGenerator generator;
+		protected final Generator generator;
 		protected final int size;
 		protected final double length;
 
@@ -37,6 +40,7 @@
 					"\t\t...with Brownian Motion");
 			this.generator = builder.generator;
 			this.size = builder.size;
+			this.spy = builder.spy;
 			this.length = builder.generator.getLength();
 			this.wallCollisions = new long [this.particles.size()];
 			this.particleCollisions = new long [this.particles.size()];
@@ -73,6 +77,7 @@
 						++wallCollisions[ids.get(i)];
 				}
 
+			spy.accept(collision, this.particles);
 			return imminentCollisions();
 		}
 
@@ -154,10 +159,12 @@
 		public static class Builder {
 
 			protected final int size;
-			protected MassiveGenerator generator;
+			protected Generator generator;
+			protected BiConsumer<Collision, List<MassiveParticle>> spy;
 
 			public Builder(final int size) {
 				this.size = size;
+				this.spy = (e, ps) -> {};
 			}
 
 			public ParticleCollider build() {
@@ -167,8 +174,14 @@
 				return new ParticleCollider(this);
 			}
 
-			public Builder from(final MassiveGenerator generator) {
+			public Builder from(final Generator generator) {
 				this.generator = generator;
+				return this;
+			}
+
+			public Builder eventSpy(
+					final BiConsumer<Collision, List<MassiveParticle>> spy) {
+				this.spy = spy;
 				return this;
 			}
 		}

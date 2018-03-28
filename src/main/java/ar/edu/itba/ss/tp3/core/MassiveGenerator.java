@@ -3,6 +3,9 @@
 
 	import java.util.ArrayList;
 	import java.util.List;
+	import java.util.function.Consumer;
+
+	import ar.edu.itba.ss.tp3.core.interfaces.Generator;
 
 		/**
 		* <p>Generador de partículas rígidas con masa. Las partículas
@@ -11,9 +14,10 @@
 		* distinguidas, según el modelo <i>Browniano</i>.</p>
 		*/
 
-	public class MassiveGenerator {
+	public class MassiveGenerator implements Generator {
 
 		protected final List<MassiveParticle> particles;
+		protected final Consumer<MassiveParticle> spy;
 		protected final double length;
 		protected final double radius;
 		protected final double speed;
@@ -32,16 +36,24 @@
 			this.radius = builder.radius;
 			this.speed = builder.speed;
 			this.mass = builder.mass;
+			this.spy = builder.spy;
 		}
 
 		public static Builder over(final double length) {
 			return new Builder(length);
 		}
 
+		public MassiveGenerator destroy() {
+			particles.clear();
+			return this;
+		}
+
+		@Override
 		public List<MassiveParticle> getParticles() {
 			return particles;
 		}
 
+		@Override
 		public MassiveGenerator create(final int size) {
 			final int limit = particles.size() + size;
 			final double estimatedArea = size * Math.PI * radius * radius;
@@ -54,14 +66,11 @@
 				System.out.print("\t\tLoaded particles: " + particles.size() + "\r");
 			}
 			System.out.println("\n\tAvailable area: " + availableArea + " [m^2]");
+			particles.stream().forEachOrdered(spy);
 			return this;
 		}
 
-		public MassiveGenerator destroy() {
-			particles.clear();
-			return this;
-		}
-
+		@Override
 		public double getLength() {
 			return length;
 		}
@@ -75,6 +84,7 @@
 		public static class Builder {
 
 			protected final List<MassiveParticle> particles;
+			protected Consumer<MassiveParticle> spy = p -> {};
 			protected double length = 1.0;
 			protected double radius = 0.001;
 			protected double speed = 0.1;
@@ -92,9 +102,16 @@
 			}
 
 			public Builder withBrownianMotion(
+					final double x, final double y,
 					final double radius, final double speed, final double mass) {
-				while (!addWithoutCollision(
-						this.particles, this.length, radius, speed, mass));
+				/*while (!addWithoutCollision(
+						this.particles, this.length, radius, speed, mass));*/
+				final MassiveParticle big = new MassiveParticle(
+						x, y, radius,
+						2 * speed * (Math.random() - 0.5),
+						2 * speed * (Math.random() - 0.5),
+						mass);
+				particles.add(big);
 				this.availableArea -= Math.PI * radius * radius;
 				System.out.println(
 					"Distinguished Particle (R = " + radius +
@@ -138,8 +155,15 @@
 				final boolean collide = particles
 						.stream()
 						.anyMatch(particle::overlap);
-				if (!collide) particles.add(particle);
+				if (!collide) {
+					particles.add(particle);
+				}
 				return !collide;
+			}
+
+			public Builder spy(final Consumer<MassiveParticle> spy) {
+				this.spy = spy;
+				return this;
 			}
 		}
 	}
