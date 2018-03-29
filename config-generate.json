@@ -1,17 +1,17 @@
 {
 	"n": "110",
 	"events": "1",
-	"t-max": "123",
+	"tMax": "123",
 	"l": "",
 	"r": "",
 	"speed": "",
 	"mass": "",
-	"r-big": "",
-	"mass-big": "",
-	"x-big": "",
-	"y-big": "",
-	"output-file": "",
-	"input-file": "",
+	"rBig": "",
+	"massBig": "",
+	"xBig": "",
+	"yBig": "",
+	"outputFile": "",
+	"inputFile": "",
 	"t": "",
-	"delta_t": ""
+	"deltaT": ""
 }

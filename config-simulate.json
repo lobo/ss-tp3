@@ -1,9 +1,9 @@
 {
 	"events": "1",
-	"t-max": "123",
+	"tMax": "123",
 	"l": "",
-	"output-file": "",
-	"input-file": "",
+	"outputFile": "",
+	"inputFile": "",
 	"t": "",
-	"delta_t": ""
+	"deltaT": ""
 }
