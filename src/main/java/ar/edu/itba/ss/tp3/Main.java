@@ -3,10 +3,10 @@
 
 	import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+	import com.fasterxml.jackson.core.JsonParseException;
+	import com.fasterxml.jackson.databind.JsonMappingException;
 
-import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
+	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 	import ar.edu.itba.ss.tp3.core.MassiveGenerator;
 	import ar.edu.itba.ss.tp3.core.ParticleCollider;
 
@@ -17,9 +17,68 @@ import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 		*/
 
 	public final class Main {
+		
+		private static final String HELP_TEXT = "Brownian Motion.\n" +
+				"Possible modes: \n" + 
+				"generate\n" +
+				"simulate\n" +
+				"animate\n";
+
+		enum EXIT_CODE {
+			NO_ARGS(-1), 
+			BAD_N_ARGUMENTS(-2),
+			BAD_ARGUMENT(-3);
+			
+			private final int code;
+		
+			EXIT_CODE(final int code) {
+				this.code = code;
+			}
+		
+			public int getCode() {
+				return code;
+			}
+		}
+		
+		private static void exit(final EXIT_CODE exitCode) {
+			System.exit(exitCode.getCode());
+		}
 
 		public static void main(final String [] arguments) throws JsonParseException, JsonMappingException, IOException {
-
+			
+			if (arguments.length == 0) {
+				System.out.println("[FAIL] - No arguments passed. Try 'help' for more information.");
+				exit(EXIT_CODE.NO_ARGS);
+			} else if (arguments.length != 1) {
+				System.out.println("[FAIL] - Wrong number of arguments. Try 'help' for more information.");
+				exit(EXIT_CODE.BAD_N_ARGUMENTS);
+			}
+					
+			if (arguments[0].equals("help")) {
+				System.out.println(HELP_TEXT);
+			} else {
+				final long start = System.nanoTime();
+				
+				switch (arguments[0]) {
+					case "help":
+						System.out.println(HELP_TEXT);
+						break;
+					case "generate":
+						break;
+					case "simulate":
+						break;
+					case "animate":
+						break;
+					default:
+						System.out.println("[FAIL] - Invalid argument. Try 'help' for more information.");
+						exit(EXIT_CODE.BAD_ARGUMENT);
+						break;
+				}
+			}
+			
+		}
+		
+		private static void generateMode() throws JsonParseException, JsonMappingException, IOException {
 			final int N = 10000;			// Cantidad de partículas
 			final long E = 100;				// Cantidad máxima de eventos
 			final double tMax = 60.0;		// Tiempo máximo de simulación
@@ -50,4 +109,15 @@ import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 				.limitedByEvents(E)
 				.run();*/
 		}
+		
+		private static void simulateMode() {
+			
+		}
+		
+		private static void animateMode() {
+			
+		}
+
+		
+
 	}
