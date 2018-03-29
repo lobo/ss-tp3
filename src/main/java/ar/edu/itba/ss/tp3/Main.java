@@ -1,7 +1,12 @@
 
 	package ar.edu.itba.ss.tp3;
 
-	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
+	import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 	import ar.edu.itba.ss.tp3.core.MassiveGenerator;
 	import ar.edu.itba.ss.tp3.core.ParticleCollider;
 
@@ -13,7 +18,7 @@
 
 	public final class Main {
 
-		public static void main(final String [] arguments) {
+		public static void main(final String [] arguments) throws JsonParseException, JsonMappingException, IOException {
 
 			final int N = 10000;			// Cantidad de partículas
 			final long E = 100;				// Cantidad máxima de eventos
@@ -26,7 +31,12 @@
 			final double massBig = 0.1;		// Masa distinguida (en Kg.)
 			//final double T = 300.0;		// Temperatura del sistema
 			//final double Δt = 0.1;		// Intervalo de animación
-
+			
+			final Configurator config = new Configurator();
+			config.load();
+			final Long hola = config.getConfiguration().getEvents();
+			System.out.println(hola);
+			/*
 			EventDrivenSimulation
 				.of(ParticleCollider.of(N)
 					.from(MassiveGenerator.over(L)
@@ -38,6 +48,6 @@
 					.build())
 				.limitedByTime(tMax)
 				.limitedByEvents(E)
-				.run();
+				.run();*/
 		}
 	}
