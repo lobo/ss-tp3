@@ -10,18 +10,20 @@
 	import java.io.PrintStream;
 	import java.io.PrintWriter;
 	import java.util.ArrayList;
+
 	import java.util.List;
-	import java.util.Map;
 	
 	import com.fasterxml.jackson.core.JsonParseException;
 	import com.fasterxml.jackson.databind.JsonMappingException;
 	
 	import ar.edu.itba.ss.core.Particle;
 	import ar.edu.itba.ss.tp2.core.MobileParticle;
+	import ar.edu.itba.ss.tp3.core.Collision;
 	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 	import ar.edu.itba.ss.tp3.core.MassiveGenerator;
 	import ar.edu.itba.ss.tp3.core.MassiveParticle;
 	import ar.edu.itba.ss.tp3.core.ParticleCollider;
+	import ar.edu.itba.ss.tp3.core.StaticGenerator;
 	
 		/**
 		* <p>Punto de entrada principal de la simulación. Se encarga de
@@ -95,97 +97,155 @@
 		}
 		
 		private static void generateMode() throws JsonParseException, JsonMappingException, IOException {
-			Integer n = 10000;			// Cantidad de partículas
-			long events = 100;				// Cantidad máxima de eventos
-			double tmax = 60.0;		// Tiempo máximo de simulación
-			double l = 10.0;			// Dimensión del espacio
-			double r = 0.005;			// Radio de las partículas
-			double rbig = 0.05;		// Radio distinguido
-			double speed = 0.1;		// Rapidez máxima
-			double mass = 0.0001;		// Masa de las partículas (en Kg.)
-			double massbig = 0.1;		// Masa distinguida (en Kg.)
-			//final double T = 300.0;		// Temperatura del sistema
-			//final double Δt = 0.1;		// Intervalo de animación
+
 			
 			final GenerateConfigurator config = new GenerateConfigurator();
 			config.load();
 			
-			n = config.getConfiguration().getN();
-			events = config.getConfiguration().getEvents();
-			tmax = config.getConfiguration().getTmax();
-			l = config.getConfiguration().getL();
-			r = config.getConfiguration().getR();
-			rbig = config.getConfiguration().getRbig();
-			speed = config.getConfiguration().getSpeed();
-			mass = config.getConfiguration().getMass();
-			massbig = config.getConfiguration().getMassbig();
+			Integer n = config.getConfiguration().getN();
+			Long events = config.getConfiguration().getEvents();
+			Double tmax = config.getConfiguration().getTmax();
+			Double l = config.getConfiguration().getL();
+			Double r = config.getConfiguration().getR();
+			Double rbig = config.getConfiguration().getRbig();
+			Double xbig = config.getConfiguration().getXbig();
+			Double ybig = config.getConfiguration().getYbig();
+			Double speed = config.getConfiguration().getSpeed();
+			
+			Double mass = config.getConfiguration().getMass();
+			Double massbig = config.getConfiguration().getMassbig();
 			String inputFilename = config.getConfiguration().getInputfile();
 			String outputFilename = config.getConfiguration().getOutputfile();
 			
+			PrintWriter pw = new PrintWriter(outputFilename);
+			
+			List<MassiveParticle> particles = new ArrayList<MassiveParticle>();
 			MassiveGenerator mg = MassiveGenerator.over(l)
-					.withBrownianMotion(rbig, 1, 0, massbig, 0) // ESTOS PARAMETROS SON CUALQUIERA
+					.withBrownianMotion(xbig, ybig, r, 0, mass) 
+					.spy(p -> {
+						particles.add(p);
+					})
 					.radius(r)
 					.speed(speed)
 					.mass(mass)
 					.build();
 			
-			List<MassiveParticle> particles = mg.getParticles();
+			List<Collision> cols = new ArrayList<Collision>();
+			List<List<MassiveParticle>> mps = new ArrayList<List<MassiveParticle>>();
 			
-			
-			
-			/*
 			EventDrivenSimulation
 				.of(ParticleCollider.of(n)
+					.eventSpy((e, ps) -> {
+						try {
+							cols.add(e);
+							mps.add(ps);
+							generateOutputFile(e, ps, pw, outputFilename);
+						} catch (FileNotFoundException e1) {
+							e1.printStackTrace();
+						} 
+					})
 					.from(mg)
 					.build())
 				.limitedByTime(tmax)
 				.limitedByEvents(events)
-				.run(); */
+				.run();
+					
+			Double cuttingTime = cols.get(cols.size()-1).getTime() / 3;
 			
+			PrintWriter pwSpeed1 = new PrintWriter("speed1.txt");
+			PrintWriter pwSpeed2 = new PrintWriter("speed2.txt");
+			PrintWriter pwSpeed3 = new PrintWriter("speed3.txt");
+			
+			PrintWriter collisionsFrequency = new PrintWriter("collisionsFrequency.txt");
+			
+			
+			
+			for (int i = 0; i < cols.size(); i++) {
+				calculateFrequency(cols.get(i), collisionsFrequency, "collisionsFrequency.txt");
+				
+				if (cols.get(i).getTime() < cuttingTime) {
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "speed1.txt");
+				} else if (cols.get(i).getTime() < cuttingTime * 2) {
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "speed2.txt");
+				} else {
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "speed3.txt");
+				}
+				
+			}
 			
 			// Generate input file
 			generateInputFile(particles, n, inputFilename);
-			
-			// Generate output file
-			for (int i = 0; i < events; i++) {
-				generateOutputFile(particles, i, outputFilename);
-			}
+	
 		}
 		
+		/*
 		private static void simulateMode() throws JsonParseException, JsonMappingException, IOException {
-			
-			long events = 100;				// Cantidad máxima de eventos
-			double tmax = 60.0;		// Tiempo máximo de simulación
-			double l = 10.0;			// Dimensión del espacio
-			
+						
 			final SimulateConfigurator config = new SimulateConfigurator();
 			config.load();
 			
-			events = config.getConfiguration().getEvents();
-			tmax = config.getConfiguration().getTmax();
-			l = config.getConfiguration().getL();
+			Long events = config.getConfiguration().getEvents();
+			Double tmax = config.getConfiguration().getTmax();
+			Double l = config.getConfiguration().getL();
 			String inputFilename = config.getConfiguration().getInputfile();
 			String outputFilename = config.getConfiguration().getOutputfile();
 			
+			// LAS PARTICULAS LAS LEO DEL INPUT FILE QUE HICE
+			final Generator generator = StaticGenerator.from(particles).over().build();
 			
 			
-			// Generate output file
-			for (int i = 0; i < events; i++) {
-				//generateOutputFile(particles, i, outputFilename);
-			}
+			PrintWriter pw = new PrintWriter(outputFilename);
+						
+			List<Collision> cols = new ArrayList<Collision>();
+			List<List<MassiveParticle>> mps = new ArrayList<List<MassiveParticle>>();
+			
+			EventDrivenSimulation
+				.of(ParticleCollider.of(n) // sale del archivo
+					.eventSpy((e, ps) -> {
+						try {
+							cols.add(e);
+							mps.add(ps);
+							generateOutputFile(e, ps, pw, outputFilename);
+						} catch (FileNotFoundException e1) {
+							e1.printStackTrace();
+						} 
+					})
+					.from(generator)
+					.build())
+				.limitedByTime(tmax)
+				.limitedByEvents(events)
+				.run();
 			
 			
-		}
+		} */
 		
 		private static void animateMode() {
 			
 		}
 		
-		private static void calculateFrequency() {
-			
+		private static void calculateFrequency(Collision col, PrintWriter pw, final String input_filename) {			
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
+				out.write(((Double)col.getTime()).toString() + "\n");
+			}catch (IOException e) {
+			    e.printStackTrace();
+			}
 		}
 		
-		private static void calculateSpeed() {
+		private static void calculateSpeed(Collision col, List<MassiveParticle> particles, PrintWriter pw, final String input_filename) {
+			List<Double> speedModules = new ArrayList<Double>();
+			
+			
+			for (MassiveParticle p: particles) {
+				speedModules.add(Math.sqrt(Math.pow(p.getVx(), 2) + Math.pow(p.getVy(), 2)));
+			}
+			
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
+				for(Double speed: speedModules){
+					out.write(speed.toString() + "\n");
+				}
+			}catch (IOException e) {
+			    e.printStackTrace();
+			}
 			
 		}
 		
@@ -194,34 +254,27 @@
 		}
 		
 		// wrong parameters, need to change them
-		private static List<Double> generateOutputFile(List<MassiveParticle> particles, int cycle, final String output_filename) throws FileNotFoundException {
-			if(cycle == 0){
-				try{
-					PrintWriter pw = new PrintWriter(output_filename);
-					pw.close();
-				}catch (Exception e){
-					e.printStackTrace();
-				}
-			}
-			List<Double> speedModules = new ArrayList<Double>();
+		private static void generateOutputFile(Collision event, List<MassiveParticle> particles, PrintWriter pw, final String output_filename) throws FileNotFoundException {
+			
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output_filename, true)))) {
-				out.write(String.valueOf(particles.size()) + "\n"); // VA ESTO EN REALIDAD: // <event-time-1> <id>
-				
+								
 				// Do something similar to the SPEED MODE but for the FREQUENCY MODE 
-				// in this line using: <event-time-1> <id>
 				
+				// LINE 1
+				List<String> ids = new ArrayList<String>();
+				for (Integer id : event.getIDs()) {
+					ids.add(id.toString() + " ");
+				}
+				out.write(event.getTime() + " " + ids + "\n"); 
+				
+				//LINE 2
 				for(MassiveParticle p: particles){
 					out.write(p.getX() + " " +  p.getY() + " " + p.getVx() + " " + p.getVy() + "\n");
-
-					// Next line: only for SPEED MODE
-					speedModules.add(Math.sqrt(Math.pow(p.getVx(), 2) + Math.pow(p.getVy(), 2)));
 				}
 				
 			}catch (IOException e) {
 			    e.printStackTrace();
 			}
-			return speedModules;
-			
 			
 		}
 		
@@ -235,8 +288,10 @@
 				}
 			}
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("animatedFile.data", true)))) {
-				out.write(String.valueOf(particles.size()) + "\n");
-				out.write(String.valueOf(cycle) + "\n");
+				out.write(String.valueOf(particles.size()) + "\n"); // N
+				out.write(String.valueOf(cycle) + "\n");			  // ciclo
+
+				// position_x position_y
 				for(MobileParticle p: particles){
 					out.write(p.getX() + " " +  p.getY() + "\n");
 				}
@@ -246,7 +301,6 @@
 		}
 		
 		
-		// CHECKED - wrong parameters, need to change them
 		private static void generateInputFile(final List<MassiveParticle> particles, final int N, final String input_filename) throws FileNotFoundException {
 			System.out.println("The output has been written into a file.");
 			final String filename = "./" + input_filename + ".txt";
@@ -267,7 +321,5 @@
 						);
 			});
 		}
-	
 		
-	
 	}
