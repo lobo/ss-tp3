@@ -13,11 +13,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	*/
 
 
-public final class Configurator {
+public final class SimulateConfigurator {
 
 	// Configuración global:
-	private static GenerateConfiguration configuration
-		= new GenerateConfiguration();
+	private static SimulateConfiguration configuration
+		= new SimulateConfiguration();
 
 	// Parser de JSON:
 	private static final ObjectMapper mapper
@@ -29,7 +29,7 @@ public final class Configurator {
 	* @return Un objeto que contiene la configuración actual.
 	*/
 
-	public GenerateConfiguration getConfiguration() {
+	public SimulateConfiguration getConfiguration() {
 
 		return configuration;
 	}
@@ -54,7 +54,7 @@ public final class Configurator {
 				JsonMappingException,
 				IOException {
 
-		final File file = new File(GenerateConfiguration.CONFIGURATION_FILENAME);
-		configuration = mapper.readValue(file, GenerateConfiguration.class);
+		final File file = new File(SimulateConfiguration.CONFIGURATION_FILENAME);
+		configuration = mapper.readValue(file, SimulateConfiguration.class);
 	}
 }
