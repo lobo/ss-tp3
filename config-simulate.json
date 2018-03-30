@@ -1,8 +1,8 @@
 {
-	"events": "1",
-	"tMax": "123",
-	"l": "",
-	"outputFile": "",
-	"inputFile": "",
-	"deltaT": ""
+	"events"		: "100",
+	"tmax"		: "60.0",
+	"l"			: "10.0",
+	"inputfile"	: "input1.data",
+	"outputfile"	: "output1.data",
+	"deltat"		: "0.05"
 }
