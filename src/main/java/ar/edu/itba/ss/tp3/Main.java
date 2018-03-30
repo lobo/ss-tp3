@@ -20,10 +20,12 @@
 	import ar.edu.itba.ss.tp2.core.MobileParticle;
 	import ar.edu.itba.ss.tp3.core.Collision;
 	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
-	import ar.edu.itba.ss.tp3.core.MassiveGenerator;
+import ar.edu.itba.ss.tp3.core.Input;
+import ar.edu.itba.ss.tp3.core.MassiveGenerator;
 	import ar.edu.itba.ss.tp3.core.MassiveParticle;
 	import ar.edu.itba.ss.tp3.core.ParticleCollider;
 	import ar.edu.itba.ss.tp3.core.StaticGenerator;
+import ar.edu.itba.ss.tp3.core.interfaces.Generator;
 	
 		/**
 		* <p>Punto de entrada principal de la simulación. Se encarga de
@@ -178,7 +180,7 @@
 	
 		}
 		
-		/*
+		
 		private static void simulateMode() throws JsonParseException, JsonMappingException, IOException {
 						
 			final SimulateConfigurator config = new SimulateConfigurator();
@@ -191,7 +193,9 @@
 			String outputFilename = config.getConfiguration().getOutputfile();
 			
 			// LAS PARTICULAS LAS LEO DEL INPUT FILE QUE HICE
-			final Generator generator = StaticGenerator.from(particles).over().build();
+			Input in = new Input(inputFilename);
+			List<MassiveParticle> particles = new ArrayList<>();
+			final Generator generator = StaticGenerator.from(particles).over(l).build();
 			
 			
 			PrintWriter pw = new PrintWriter(outputFilename);
@@ -200,7 +204,7 @@
 			List<List<MassiveParticle>> mps = new ArrayList<List<MassiveParticle>>();
 			
 			EventDrivenSimulation
-				.of(ParticleCollider.of(n) // sale del archivo
+				.of(ParticleCollider.of(particles.size()) 
 					.eventSpy((e, ps) -> {
 						try {
 							cols.add(e);
@@ -216,8 +220,30 @@
 				.limitedByEvents(events)
 				.run();
 			
+			Double cuttingTime = cols.get(cols.size()-1).getTime() / 3;
 			
-		} */
+			PrintWriter pwSpeed1 = new PrintWriter("speed1.txt");
+			PrintWriter pwSpeed2 = new PrintWriter("speed2.txt");
+			PrintWriter pwSpeed3 = new PrintWriter("speed3.txt");
+			
+			PrintWriter collisionsFrequency = new PrintWriter("collisionsFrequency.txt");
+			
+			
+			
+			for (int i = 0; i < cols.size(); i++) {
+				calculateFrequency(cols.get(i), collisionsFrequency, "collisionsFrequency.txt");
+				
+				if (cols.get(i).getTime() < cuttingTime) {
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "speed1.txt");
+				} else if (cols.get(i).getTime() < cuttingTime * 2) {
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "speed2.txt");
+				} else {
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "speed3.txt");
+				}
+				
+			}
+						
+		} 
 		
 		private static void animateMode() {
 			
