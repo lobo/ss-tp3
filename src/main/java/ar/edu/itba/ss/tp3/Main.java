@@ -206,6 +206,10 @@
 			List<Double> speedModules = new ArrayList<Double>();
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output_filename, true)))) {
 				out.write(String.valueOf(particles.size()) + "\n"); // VA ESTO EN REALIDAD: // <event-time-1> <id>
+				
+				// Do something similar to the SPEED MODE but for the FREQUENCY MODE 
+				// in this line using: <event-time-1> <id>
+				
 				for(MassiveParticle p: particles){
 					out.write(p.getX() + " " +  p.getY() + " " + p.getVx() + " " + p.getVy() + "\n");
 
