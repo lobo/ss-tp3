@@ -1,19 +1,24 @@
 	
 	package ar.edu.itba.ss.tp3;
 	
-	import java.io.File;
+	import java.io.BufferedWriter;
+import java.io.File;
 	import java.io.FileNotFoundException;
 	import java.io.FileOutputStream;
-	import java.io.IOException;
+import java.io.FileWriter;
+import java.io.IOException;
 	import java.io.PrintStream;
-	import java.util.List;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 	import java.util.Map;
 	
 	import com.fasterxml.jackson.core.JsonParseException;
 	import com.fasterxml.jackson.databind.JsonMappingException;
 	
 	import ar.edu.itba.ss.core.Particle;
-	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
+import ar.edu.itba.ss.tp2.core.MobileParticle;
+import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 	import ar.edu.itba.ss.tp3.core.MassiveGenerator;
 	import ar.edu.itba.ss.tp3.core.MassiveParticle;
 	import ar.edu.itba.ss.tp3.core.ParticleCollider;
@@ -114,6 +119,7 @@
 			speed = config.getConfiguration().getSpeed();
 			mass = config.getConfiguration().getMass();
 			massbig = config.getConfiguration().getMassbig();
+			String inputFilename = config.getConfiguration().getInputfile(); 
 			
 			/*
 			EventDrivenSimulation
@@ -128,6 +134,9 @@
 				.limitedByTime(tmax)
 				.limitedByEvents(events)
 				.run(); */
+			
+			List<MassiveParticle> particles = new ArrayList<MassiveParticle>();
+			generateInputFile(particles, n, inputFilename);
 		}
 		
 		private static void simulateMode() {
@@ -137,8 +146,9 @@
 		private static void animateMode() {
 			
 		}
-		/*
-		private static void fileLoggingAnimateOutput(final Map<Particle, List<Particle>> nnl, final long start, final String output_filename, final String L, final String Rc) throws FileNotFoundException {
+		
+		// wrong parameters, need to change them
+		private static void generateOutputFile(final List<MassiveParticle> particles, final long start, final String output_filename, final String L, final String Rc) throws FileNotFoundException {
 			System.out.println("The output has been written into a file.");
 			final String filename = "./" + output_filename + ".txt";
 			File file = new File(filename);
@@ -146,23 +156,42 @@
 			PrintStream ps = new PrintStream(fos);
 			System.setOut(ps);
 			
-			System.out.println(N);
-			System.out.println(0); // t0
-			nnl.forEach((particle, neighbours) -> {
+			particles.forEach((particle) -> {
 				System.out.println( 
-						particle.hashCode() + " " +
+						// <event-time-1> <id>
 						particle.getX() + " " + 
 						particle.getY() + " " +
-						particle.getRadius() + " " + 
-						list(neighbours)
+						particle.getVx() + " " +
+						particle.getVy() + " "
 						);
-			});*/
+			});
+		}
+		
+		private static void generateAnimatedFile(List<MassiveParticle> list, int cycle) {
+			if(cycle == 0){
+				try{
+					PrintWriter pw = new PrintWriter("animatedFile.data");
+					pw.close();
+				}catch (Exception e){
+					e.printStackTrace();
+				}
+			}
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("animatedFile.data", true)))) {
+				out.write(String.valueOf(list.size()) + "\n");
+				out.write(String.valueOf(cycle) + "\n");
+				for(MobileParticle p: list){
+					out.write(p.getX() + " " +  p.getY() + "\n");
+				}
+			}catch (IOException e) {
+			    e.printStackTrace();
+			}
+		}
 		
 		
-		// CHECKED
-		private static void fileLoggingGenerateOutput(final List<MassiveParticle> particles, final int N, final String output_filename) throws FileNotFoundException {
+		// CHECKED - wrong parameters, need to change them
+		private static void generateInputFile(final List<MassiveParticle> particles, final int N, final String input_filename) throws FileNotFoundException {
 			System.out.println("The output has been written into a file.");
-			final String filename = "./" + output_filename + ".txt";
+			final String filename = "./" + input_filename + ".txt";
 			File file = new File(filename);
 			FileOutputStream fos = new FileOutputStream(file);
 			PrintStream ps = new PrintStream(fos);
