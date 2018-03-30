@@ -173,14 +173,28 @@
 			for (int i = 0; i < events; i++) {
 				//generateOutputFile(particles, i, outputFilename);
 			}
+			
+			
 		}
 		
 		private static void animateMode() {
 			
 		}
 		
+		private static void calculateFrequency() {
+			
+		}
+		
+		private static void calculateSpeed() {
+			
+		}
+		
+		private static void calculateDiffusion() {
+			
+		}
+		
 		// wrong parameters, need to change them
-		private static void generateOutputFile(List<MassiveParticle> particles, int cycle, final String output_filename) throws FileNotFoundException {
+		private static List<Double> generateOutputFile(List<MassiveParticle> particles, int cycle, final String output_filename) throws FileNotFoundException {
 			if(cycle == 0){
 				try{
 					PrintWriter pw = new PrintWriter(output_filename);
@@ -189,14 +203,20 @@
 					e.printStackTrace();
 				}
 			}
+			List<Double> speedModules = new ArrayList<Double>();
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output_filename, true)))) {
 				out.write(String.valueOf(particles.size()) + "\n"); // VA ESTO EN REALIDAD: // <event-time-1> <id>
 				for(MassiveParticle p: particles){
 					out.write(p.getX() + " " +  p.getY() + " " + p.getVx() + " " + p.getVy() + "\n");
+
+					// Next line: only for SPEED MODE
+					speedModules.add(Math.sqrt(Math.pow(p.getVx(), 2) + Math.pow(p.getVy(), 2)));
 				}
+				
 			}catch (IOException e) {
 			    e.printStackTrace();
 			}
+			return speedModules;
 			
 			
 		}
