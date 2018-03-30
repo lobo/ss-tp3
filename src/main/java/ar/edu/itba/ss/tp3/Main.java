@@ -20,12 +20,12 @@
 	import ar.edu.itba.ss.tp2.core.MobileParticle;
 	import ar.edu.itba.ss.tp3.core.Collision;
 	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
-import ar.edu.itba.ss.tp3.core.Input;
-import ar.edu.itba.ss.tp3.core.MassiveGenerator;
+	import ar.edu.itba.ss.tp3.core.Input;
+	import ar.edu.itba.ss.tp3.core.MassiveGenerator;
 	import ar.edu.itba.ss.tp3.core.MassiveParticle;
 	import ar.edu.itba.ss.tp3.core.ParticleCollider;
 	import ar.edu.itba.ss.tp3.core.StaticGenerator;
-import ar.edu.itba.ss.tp3.core.interfaces.Generator;
+	import ar.edu.itba.ss.tp3.core.interfaces.Generator;
 	
 		/**
 		* <p>Punto de entrada principal de la simulación. Se encarga de
@@ -86,9 +86,10 @@ import ar.edu.itba.ss.tp3.core.interfaces.Generator;
 					case "simulate":
 						simulateMode();
 						break;
+					/*	
 					case "animate":
 						animateMode();
-						break;
+						break;*/
 					default:
 						System.out.println("[FAIL] - Invalid argument. Try 'help' for more information.");
 						exit(EXIT_CODE.BAD_ARGUMENT);
@@ -113,6 +114,7 @@ import ar.edu.itba.ss.tp3.core.interfaces.Generator;
 			Double xbig = config.getConfiguration().getXbig();
 			Double ybig = config.getConfiguration().getYbig();
 			Double speed = config.getConfiguration().getSpeed();
+			Double deltat = config.getConfiguration().getDeltat();
 			
 			Double mass = config.getConfiguration().getMass();
 			Double massbig = config.getConfiguration().getMassbig();
@@ -160,8 +162,6 @@ import ar.edu.itba.ss.tp3.core.interfaces.Generator;
 			
 			PrintWriter collisionsFrequency = new PrintWriter("collisionsFrequency.txt");
 			
-			
-			
 			for (int i = 0; i < cols.size(); i++) {
 				calculateFrequency(cols.get(i), collisionsFrequency, "collisionsFrequency.txt");
 				
@@ -191,8 +191,8 @@ import ar.edu.itba.ss.tp3.core.interfaces.Generator;
 			Double l = config.getConfiguration().getL();
 			String inputFilename = config.getConfiguration().getInputfile();
 			String outputFilename = config.getConfiguration().getOutputfile();
+			Double deltat = config.getConfiguration().getDeltat();
 			
-			// LAS PARTICULAS LAS LEO DEL INPUT FILE QUE HICE
 			Input in = new Input(inputFilename);
 			List<MassiveParticle> particles = new ArrayList<>();
 			final Generator generator = StaticGenerator.from(particles).over(l).build();
@@ -242,10 +242,14 @@ import ar.edu.itba.ss.tp3.core.interfaces.Generator;
 				}
 				
 			}
+			
+			animateMode(cols, mps, deltat);
 						
 		} 
 		
-		private static void animateMode() {
+		private static void animateMode(List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) {
+			
+			
 			
 		}
 		

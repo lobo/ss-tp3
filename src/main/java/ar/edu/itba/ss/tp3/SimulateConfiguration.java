@@ -68,6 +68,10 @@ public final class SimulateConfiguration {
 
 	public String getOutputfile() {
 		return outputfile;
-	}	
+	}
+
+	public Double getDeltat() {
+		return deltat;
+	}
 
 }
