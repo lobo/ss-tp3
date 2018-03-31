@@ -116,8 +116,8 @@
 			
 			Double mass = config.getConfiguration().getMass();
 			Double massbig = config.getConfiguration().getMassbig();
-			String inputFilename = config.getConfiguration().getInputfile();
-			String outputFilename = config.getConfiguration().getOutputfile();
+			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString();
+			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString();
 			
 			PrintWriter pw = new PrintWriter(outputFilename);
 			
@@ -154,21 +154,21 @@
 					
 			Double cuttingTime = cols.get(cols.size()-1).getTime() / 3;
 			
-			PrintWriter pwSpeed1 = new PrintWriter("speed1.txt");
-			PrintWriter pwSpeed2 = new PrintWriter("speed2.txt");
-			PrintWriter pwSpeed3 = new PrintWriter("speed3.txt");
+			PrintWriter pwSpeed1 = new PrintWriter("./resources/data/speed1.txt");
+			PrintWriter pwSpeed2 = new PrintWriter("./resources/data/speed2.txt");
+			PrintWriter pwSpeed3 = new PrintWriter("./resources/data/speed3.txt");
 			
-			PrintWriter collisionsFrequency = new PrintWriter("collisionsFrequency.txt");
+			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/frequency-of-collisions.txt");
 			
 			for (int i = 0; i < cols.size(); i++) {
-				calculateFrequency(cols.get(i), collisionsFrequency, "collisionsFrequency.txt");
+				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/frequency-of-collisions.txt");
 				
 				if (cols.get(i).getTime() < cuttingTime) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "speed1.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "./resources/data/speed1.txt");
 				} else if (cols.get(i).getTime() < cuttingTime * 2) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "speed2.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "./resources/data/speed2.txt");
 				} else {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "speed3.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "./resources/data/speed3.txt");
 				}
 				
 			}
@@ -187,8 +187,8 @@
 			Long events = config.getConfiguration().getEvents();
 			Double tmax = config.getConfiguration().getTmax();
 			Double l = config.getConfiguration().getL();
-			String inputFilename = config.getConfiguration().getInputfile();
-			String outputFilename = config.getConfiguration().getOutputfile();
+			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString();
+			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString();
 			Double deltat = config.getConfiguration().getDeltat();
 			
 			Input in = new Input(inputFilename);
@@ -220,23 +220,23 @@
 			
 			Double cuttingTime = cols.get(cols.size()-1).getTime() / 3;
 			
-			PrintWriter pwSpeed1 = new PrintWriter("speed1.txt");
-			PrintWriter pwSpeed2 = new PrintWriter("speed2.txt");
-			PrintWriter pwSpeed3 = new PrintWriter("speed3.txt");
+			PrintWriter pwSpeed1 = new PrintWriter("./resources/data/speed1.txt");
+			PrintWriter pwSpeed2 = new PrintWriter("./resources/data/speed2.txt");
+			PrintWriter pwSpeed3 = new PrintWriter("./resources/data/speed3.txt");
 			
-			PrintWriter collisionsFrequency = new PrintWriter("collisionsFrequency.txt");
+			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/frequency-of-collisions.txt");
 			
 			
 			
 			for (int i = 0; i < cols.size(); i++) {
-				calculateFrequency(cols.get(i), collisionsFrequency, "collisionsFrequency.txt");
+				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/frequency-of-collisions.txt");
 				
 				if (cols.get(i).getTime() < cuttingTime) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "speed1.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "./resources/data/speed1.txt");
 				} else if (cols.get(i).getTime() < cuttingTime * 2) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "speed2.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "./resources/data/speed2.txt");
 				} else {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "speed3.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "./resources/data/speed3.txt");
 				}
 				
 			}
@@ -246,7 +246,7 @@
 		} 
 		
 		private static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
-			PrintWriter pw = new PrintWriter("animatedFile.data");
+			PrintWriter pw = new PrintWriter("./resources/data/animatedFile.data");
 						
 			double t = 0.0;
 			double xt;
@@ -258,7 +258,7 @@
 					MassiveParticle p = particles.get(j);
 					xt = p.getX() + p.getVx() * deltat;
 					yt = p.getY() + p.getVy() * deltat;
-					generateAnimatedFile(particles.size(), t1, xt, yt, pw, "animatedFile.data");
+					generateAnimatedFile(particles.size(), t1, xt, yt, pw, "./resources/data/animatedFile.data");
 				}
 			}
 			
@@ -269,7 +269,7 @@
 						MassiveParticle p = particles.get(j);
 						xt = p.getX() + p.getVx() * deltat;
 						yt = p.getY() + p.getVy() * deltat;
-						generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pw, "animatedFile.data");
+						generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pw, "./resources/data/animatedFile.data");
 					}
 				}
 			}
@@ -356,10 +356,7 @@
 		// wrong parameters, need to change them
 		private static void generateOutputFile(Collision event, List<MassiveParticle> particles, PrintWriter pw, final String output_filename) throws FileNotFoundException {
 			
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output_filename, true)))) {
-								
-				// Do something similar to the SPEED MODE but for the FREQUENCY MODE 
-				
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output_filename, true)))) {			
 				// LINE 1
 				StringBuilder ids = new StringBuilder();
 				for (Integer id : event.getIDs()) {
@@ -383,7 +380,7 @@
 		
 		private static void generateInputFile(final List<MassiveParticle> particles, final int N, final String input_filename) throws FileNotFoundException {
 			System.out.println("The output has been written into a file.");
-			final String filename = "./" + input_filename + ".txt";
+			final String filename = input_filename;
 			File file = new File(filename);
 			FileOutputStream fos = new FileOutputStream(file);
 			PrintStream ps = new PrintStream(fos);
