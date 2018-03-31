@@ -17,7 +17,6 @@
 	import com.fasterxml.jackson.databind.JsonMappingException;
 	
 	import ar.edu.itba.ss.core.Particle;
-	import ar.edu.itba.ss.tp2.core.MobileParticle;
 	import ar.edu.itba.ss.tp3.core.Collision;
 	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 	import ar.edu.itba.ss.tp3.core.Input;
@@ -101,7 +100,6 @@
 		
 		private static void generateMode() throws JsonParseException, JsonMappingException, IOException {
 
-			
 			final GenerateConfigurator config = new GenerateConfigurator();
 			config.load();
 			
@@ -243,15 +241,77 @@
 				
 			}
 			
-			animateMode(cols, mps, deltat);
+			animateMode(particles, cols, mps, deltat);
 						
 		} 
 		
-		private static void animateMode(List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) {
+		private static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
+			PrintWriter pw = new PrintWriter("animatedFile.data");
+						
+			double t = 0.0;
+			double xt;
+			double yt;
+			
+			// primera parte
+			for (double t1 = 0.0; t1 < cols.get(0).getTime(); t1+= deltat) {
+				for (int j = 0; j < particles.size(); j++) {
+					MassiveParticle p = particles.get(j);
+					xt = p.getX() + p.getVx() * deltat;
+					yt = p.getY() + p.getVy() * deltat;
+					generateAnimatedFile(particles.size(), t1, xt, yt, pw, "animatedFile.data");
+				}
+			}
+			
+			// segunda parte
+			for (int k = 1; k < cols.size(); k++) {
+				for (double t1 = 0.0; t1 < cols.get(k).getTime() - cols.get(k-1).getTime(); t1+= deltat) {
+					for (int j = 0; j < mps.get(k-1).size(); j++) {
+						MassiveParticle p = particles.get(j);
+						xt = p.getX() + p.getVx() * deltat;
+						yt = p.getY() + p.getVy() * deltat;
+						generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pw, "animatedFile.data");
+					}
+				}
+			}
+
+			/*
+			 * x(t) = x0 + vx*t
+			 * y(t) = y0 + vy*t 
+			 * 
+			 * 0 < t < cols.get(cols.size() - 1).getTime()
+			 * usando ese t saco 4 valores
+			 * 
+			 * t0 = input-file
+				t1 (hasta evento1) =
+				x(t) = x(t - 1) + deltat * vx(t)
+				y(t) = y(t - 1) + deltat * vy(t)
+				t2 (hasta evento2) =
+				x(t - 1) = lo que te quedo de antes
+				vx(t) = es del evento1
+				x(t) = x(t - 1) + deltat * vx(t)
+				y(t) = y(t - 1) + deltat * vy(t)
+			 * 
+			 * 
+			 * try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("animatedFile.data", true)))) {
+				out.write(String.valueOf(mps.size()) + "\n"); 
+				out.write(String.valueOf(cycle) + "\n");			  // ciclo
+
+				// position_x position_y
+				for(MobileParticle p: particles){
+					out.write(p.getX() + " " +  p.getY() + "\n");
+				}
+			}catch (IOException e) {
+			    e.printStackTrace();
+			}
+			 */
 			
 			
 			
+						
 		}
+		
+		
+		
 		
 		private static void calculateFrequency(Collision col, PrintWriter pw, final String input_filename) {			
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
@@ -279,6 +339,16 @@
 			
 		}
 		
+		private static void generateAnimatedFile(final Integer n, final Double t, Double xt, Double yt, final PrintWriter pw, final String animatedFilename) {
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(animatedFilename, true)))) {
+				out.write(n.toString() + "\n");
+				out.write(t.toString() + "\n");
+				out.write(xt.toString() + yt.toString() + "\n");
+			}catch (IOException e) {
+			    e.printStackTrace();
+			}
+		}
+		
 		private static void calculateDiffusion() {
 			
 		}
@@ -291,11 +361,13 @@
 				// Do something similar to the SPEED MODE but for the FREQUENCY MODE 
 				
 				// LINE 1
-				List<String> ids = new ArrayList<String>();
+				StringBuilder ids = new StringBuilder();
 				for (Integer id : event.getIDs()) {
-					ids.add(id.toString() + " ");
+				    ids.append(id.toString() + " ");
 				}
-				out.write(event.getTime() + " " + ids + "\n"); 
+				String totalIds = ids.toString();
+				
+				out.write(event.getTime() + " " + totalIds + "\n"); 
 				
 				//LINE 2
 				for(MassiveParticle p: particles){
@@ -307,29 +379,7 @@
 			}
 			
 		}
-		
-		private static void generateAnimatedFile(List<MassiveParticle> particles, int cycle) {
-			if(cycle == 0){
-				try{
-					PrintWriter pw = new PrintWriter("animatedFile.data");
-					pw.close();
-				}catch (Exception e){
-					e.printStackTrace();
-				}
-			}
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("animatedFile.data", true)))) {
-				out.write(String.valueOf(particles.size()) + "\n"); // N
-				out.write(String.valueOf(cycle) + "\n");			  // ciclo
 
-				// position_x position_y
-				for(MobileParticle p: particles){
-					out.write(p.getX() + " " +  p.getY() + "\n");
-				}
-			}catch (IOException e) {
-			    e.printStackTrace();
-			}
-		}
-		
 		
 		private static void generateInputFile(final List<MassiveParticle> particles, final int N, final String input_filename) throws FileNotFoundException {
 			System.out.println("The output has been written into a file.");
