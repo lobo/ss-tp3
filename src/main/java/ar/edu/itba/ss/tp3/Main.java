@@ -17,7 +17,6 @@
 	import com.fasterxml.jackson.databind.JsonMappingException;
 	
 	import ar.edu.itba.ss.core.Particle;
-	import ar.edu.itba.ss.tp2.core.MobileParticle;
 	import ar.edu.itba.ss.tp3.core.Collision;
 	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 	import ar.edu.itba.ss.tp3.core.Input;
@@ -362,11 +361,13 @@
 				// Do something similar to the SPEED MODE but for the FREQUENCY MODE 
 				
 				// LINE 1
-				List<String> ids = new ArrayList<String>();
+				StringBuilder ids = new StringBuilder();
 				for (Integer id : event.getIDs()) {
-					ids.add(id.toString() + " ");
+				    ids.append(id.toString() + " ");
 				}
-				out.write(event.getTime() + " " + ids + "\n"); 
+				String totalIds = ids.toString();
+				
+				out.write(event.getTime() + " " + totalIds + "\n"); 
 				
 				//LINE 2
 				for(MassiveParticle p: particles){
