@@ -101,7 +101,6 @@
 		
 		private static void generateMode() throws JsonParseException, JsonMappingException, IOException {
 
-			
 			final GenerateConfigurator config = new GenerateConfigurator();
 			config.load();
 			
@@ -260,7 +259,7 @@
 					MassiveParticle p = particles.get(j);
 					xt = p.getX() + p.getVx() * deltat;
 					yt = p.getY() + p.getVy() * deltat;
-					// IMPRIMIR EN ARCHIVO
+					generateAnimatedFile(particles.size(), t1, xt, yt, pw, "animatedFile.data");
 				}
 			}
 			
@@ -271,7 +270,7 @@
 						MassiveParticle p = particles.get(j);
 						xt = p.getX() + p.getVx() * deltat;
 						yt = p.getY() + p.getVy() * deltat;
-						// IMPRIMIR EN ARCHIVO
+						generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pw, "animatedFile.data");
 					}
 				}
 			}
@@ -339,6 +338,16 @@
 			    e.printStackTrace();
 			}
 			
+		}
+		
+		private static void generateAnimatedFile(final Integer n, final Double t, Double xt, Double yt, final PrintWriter pw, final String animatedFilename) {
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(animatedFilename, true)))) {
+				out.write(n.toString() + "\n");
+				out.write(t.toString() + "\n");
+				out.write(xt.toString() + yt.toString() + "\n");
+			}catch (IOException e) {
+			    e.printStackTrace();
+			}
 		}
 		
 		private static void calculateDiffusion() {
