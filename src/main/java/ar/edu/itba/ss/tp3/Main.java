@@ -123,7 +123,7 @@
 			
 			List<MassiveParticle> particles = new ArrayList<MassiveParticle>();
 			MassiveGenerator mg = MassiveGenerator.over(l)
-					.withBrownianMotion(xbig, ybig, r, 0, mass) 
+					.withBrownianMotion(xbig, ybig, rbig, 0, massbig) 
 					.spy(p -> {
 						particles.add(p);
 					})
