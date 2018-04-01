@@ -12,13 +12,15 @@
 	import java.util.ArrayList;
 
 	import java.util.List;
-	
-	import com.fasterxml.jackson.core.JsonParseException;
+import java.util.Scanner;
+
+import com.fasterxml.jackson.core.JsonParseException;
 	import com.fasterxml.jackson.databind.JsonMappingException;
-	
-	import ar.edu.itba.ss.tp3.core.Collision;
+
+import ar.edu.itba.ss.core.Particle;
+import ar.edu.itba.ss.tp3.core.Collision;
 	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
-	import ar.edu.itba.ss.tp3.core.Input;
+	import ar.edu.itba.ss.tp3.core.InputMassiveParticle;
 	import ar.edu.itba.ss.tp3.core.MassiveGenerator;
 	import ar.edu.itba.ss.tp3.core.MassiveParticle;
 	import ar.edu.itba.ss.tp3.core.ParticleCollider;
@@ -35,7 +37,9 @@
 		
 		private static final String COLLISIONS_FILE = "./resources/data/collisions.txt";
 		private static final String ANIMATED_FILE = "./resources/data/animatedFile.data";
-		private static final String DIFFUSION_FILE = "./resources/data/diffusion.txt";
+		private static final String DIFFUSION_FILE_DISTINGUISHED = "./resources/data/diffusion-distinguished.txt";
+		private static final String DIFFUSION_FILE_SINGLE = "./resources/data/diffusion-single.txt";
+		private static final String DIFFUSION_FILE_TOTAL = "./resources/data/diffusion-total.txt";
 		private static final String SPEED_FILE = "./resources/data/speed";
 		
 		private static final String HELP_TEXT = "Brownian Motion.\n" +
@@ -197,7 +201,7 @@
 			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString();
 			Double deltat = config.getConfiguration().getDeltat();
 			
-			Input in = new Input(inputFilename);
+			InputMassiveParticle in = new InputMassiveParticle(inputFilename);
 			List<MassiveParticle> particles = in.getParticles();
 			final Generator generator = StaticGenerator.from(particles).over(l).build();
 			
@@ -258,7 +262,7 @@
 		
 		private static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
 			PrintWriter pwAnimated = new PrintWriter(ANIMATED_FILE);
-			PrintWriter pwDiffusion = new PrintWriter(DIFFUSION_FILE);
+			PrintWriter pwDiffusion = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
 						
 			double xt = 0.0;
 			double yt = 0.0;
@@ -269,6 +273,9 @@
 					MassiveParticle p = particles.get(j);
 					xt = p.getX() + p.getVx() * deltat;
 					yt = p.getY() + p.getVy() * deltat;
+					if (j == 0) { // it's the distinguished particle
+						logDiffusion(t1, xt, yt, pwDiffusion, DIFFUSION_FILE_DISTINGUISHED);
+					}
 					generateAnimatedFile(particles.size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
 				}
 			}
@@ -361,9 +368,61 @@
 			    e.printStackTrace();
 			}
 		}
+				
+		private static void logDiffusion(Double eventTime, Double xt, Double yt, PrintWriter pw, final String input_filename) {
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
+				
+				Double z = Math.pow(Math.sqrt(Math.pow(xt, 2) + Math.pow(yt, 2)), 2); // calculate z^2
+				out.write(eventTime.toString() + " " + z.toString()); // log in this format: event_time z
+				
+			}catch (IOException e) {
+			    e.printStackTrace();
+			}
+		}
 		
-		private static void calculateDiffusion(PrintWriter pw, final String input_filename) {
-			// TODO
+		private static void calculateDiffusion(String diffusionDistinguishedFilepath, String diffusionSingleFilepath) {
+			File distFilepath = new File(diffusionDistinguishedFilepath);
+			File singleFilepath = new File(diffusionSingleFilepath);
+			
+			try { 
+				double radius;
+				Scanner distRead = new Scanner(distFilepath);
+				Scanner singleRead = new Scanner(singleFilepath);
+				
+				List<Double> distinguishedZs = new ArrayList<Double>();
+				List<Double> singleZs = new ArrayList<Double>();
+			
+				while(distRead.hasNext() && singleRead.hasNext()){
+					distRead.next(); // avoid first column
+					singleRead.next(); // avoid first column
+					
+					distinguishedZs.add(Double.parseDouble(distRead.next()));
+					singleZs.add(Double.parseDouble(singleRead.next()));
+				}
+				
+				distRead.close();
+				singleRead.close();
+				
+				Double averageDistinguished = calculateAverage(distinguishedZs);
+				Double averageSingle = calculateAverage(singleZs);
+				
+				System.out.println("Z of the distinguished particle is: " + averageDistinguished);
+				System.out.println("z of the selected particle is: " + averageSingle);
+				System.out.println("Z / z is: " + (averageDistinguished/averageSingle));
+			} catch (Exception e) {
+				System.out.println("Error scanning file");
+			}
+		}
+		
+		private static Double calculateAverage(List <Double> zs) {
+			Double sum = 0.0;
+			if(!zs.isEmpty()) {
+				for (Double mark : zs) {
+					sum += mark;
+			    }
+				return sum.doubleValue() / zs.size();
+			}
+			return sum;
 		}
 		
 		// wrong parameters, need to change them

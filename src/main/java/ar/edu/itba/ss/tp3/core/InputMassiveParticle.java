@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Input {
+public class InputMassiveParticle {
 	
 	protected final List<MassiveParticle> particles = new ArrayList<MassiveParticle>();
 
-	public Input (String dynamicFilePath) {
+	public InputMassiveParticle (String dynamicFilePath) {
 
 		try {
 			
