@@ -33,6 +33,11 @@
 	
 	public final class Main {
 		
+		private static final String COLLISIONS_FILE = "./resources/data/collisions.txt";
+		private static final String ANIMATED_FILE = "./resources/data/animatedFile.data";
+		private static final String DIFFUSION_FILE = "./resources/data/diffusion.txt";
+		private static final String SPEED_FILE = "./resources/data/speed";
+		
 		private static final String HELP_TEXT = "Brownian Motion.\n" +
 				"Possible modes: \n" + 
 				"generate\n" +
@@ -154,22 +159,22 @@
 			// Add baseTime:
 			Double cuttingTime = (cols.get(cols.size()-1).getTime()+cols.get(cols.size()-1).getBaseTime()) / 3;
 			
-			PrintWriter pwSpeed1 = new PrintWriter("./resources/data/speed1.txt");
-			PrintWriter pwSpeed2 = new PrintWriter("./resources/data/speed2.txt");
-			PrintWriter pwSpeed3 = new PrintWriter("./resources/data/speed3.txt");
+			PrintWriter pwSpeed1 = new PrintWriter(SPEED_FILE + "1.txt");
+			PrintWriter pwSpeed2 = new PrintWriter(SPEED_FILE + "2.txt");
+			PrintWriter pwSpeed3 = new PrintWriter(SPEED_FILE + "3.txt");
 			
-			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/collisions.txt");
+			PrintWriter collisionsFrequency = new PrintWriter(COLLISIONS_FILE);
 			
 			for (int i = 0; i < cols.size(); i++) {
-				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/collisions.txt");
+				calculateFrequency(cols.get(i), collisionsFrequency, COLLISIONS_FILE);
 				
 				final double eventTime = cols.get(i).getBaseTime() + cols.get(i).getTime();
 				if (eventTime < cuttingTime) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "./resources/data/speed1.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, SPEED_FILE + "1.txt");
 				} else if (eventTime < cuttingTime * 2) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "./resources/data/speed2.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, SPEED_FILE + "2.txt");
 				} else {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "./resources/data/speed3.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, SPEED_FILE + "3.txt");
 				}
 				
 			}
@@ -221,11 +226,11 @@
 			
 			Double cuttingTime = (cols.get(cols.size()-1).getTime()+cols.get(cols.size()-1).getBaseTime()) / 3;
 				
-			PrintWriter pwSpeed1 = new PrintWriter("./resources/data/speed1.txt");
-			PrintWriter pwSpeed2 = new PrintWriter("./resources/data/speed2.txt");
-			PrintWriter pwSpeed3 = new PrintWriter("./resources/data/speed3.txt");
+			PrintWriter pwSpeed1 = new PrintWriter(SPEED_FILE + "1.txt");
+			PrintWriter pwSpeed2 = new PrintWriter(SPEED_FILE + "2.txt");
+			PrintWriter pwSpeed3 = new PrintWriter(SPEED_FILE + "3.txt");
 			
-			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/collisions.txt");
+			PrintWriter collisionsFrequency = new PrintWriter(COLLISIONS_FILE);
 			
 			
 			/*
@@ -233,16 +238,16 @@
 			 * Es decir, solo 3 eventos (1er tercio, 2do y último).
 			 */
 			for (int i = 0; i < cols.size(); i++) {
-				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/collisions.txt");
+				calculateFrequency(cols.get(i), collisionsFrequency, COLLISIONS_FILE);
 				
 				// Corrección del tiempo de corte:
 				final double eventTime = cols.get(i).getBaseTime() + cols.get(i).getTime();
 				if (eventTime < cuttingTime) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "./resources/data/speed1.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, SPEED_FILE + "1.txt");
 				} else if (eventTime < cuttingTime * 2) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "./resources/data/speed2.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, SPEED_FILE + "2.txt");
 				} else {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "./resources/data/speed3.txt");
+					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, SPEED_FILE + "3.txt");
 				}
 				
 			}
@@ -252,9 +257,9 @@
 		} 
 		
 		private static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
-			PrintWriter pw = new PrintWriter("./resources/data/animatedFile.data");
+			PrintWriter pwAnimated = new PrintWriter(ANIMATED_FILE);
+			PrintWriter pwDiffusion = new PrintWriter(DIFFUSION_FILE);
 						
-			//double t = 0.0;
 			double xt;
 			double yt;
 			
@@ -264,7 +269,7 @@
 					MassiveParticle p = particles.get(j);
 					xt = p.getX() + p.getVx() * deltat;
 					yt = p.getY() + p.getVy() * deltat;
-					generateAnimatedFile(particles.size(), t1, xt, yt, pw, "./resources/data/animatedFile.data");
+					generateAnimatedFile(particles.size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
 				}
 			}
 			
@@ -275,7 +280,7 @@
 						MassiveParticle p = particles.get(j);
 						xt = p.getX() + p.getVx() * deltat;
 						yt = p.getY() + p.getVy() * deltat;
-						//generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pw, "./resources/data/animatedFile.data");
+						//generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pw, ANIMATED_FILE);
 					}
 				}
 			}
@@ -356,7 +361,7 @@
 			}
 		}
 		
-		private static void calculateDiffusion() {
+		private static void calculateDiffusion(PrintWriter pw, final String input_filename) {
 			// TODO
 		}
 		
