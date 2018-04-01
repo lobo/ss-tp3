@@ -16,7 +16,6 @@
 	import com.fasterxml.jackson.core.JsonParseException;
 	import com.fasterxml.jackson.databind.JsonMappingException;
 	
-	import ar.edu.itba.ss.core.Particle;
 	import ar.edu.itba.ss.tp3.core.Collision;
 	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 	import ar.edu.itba.ss.tp3.core.Input;
@@ -61,7 +60,6 @@
 		}
 	
 		public static void main(final String [] arguments) throws JsonParseException, JsonMappingException, IOException {
-			
 			if (arguments.length == 0) {
 				System.out.println("[FAIL] - No arguments passed. Try 'help' for more information.");
 				exit(EXIT_CODE.NO_ARGS);
@@ -72,9 +70,7 @@
 					
 			if (arguments[0].equals("help")) {
 				System.out.println(HELP_TEXT);
-			} else {
-				final long start = System.nanoTime();
-				
+			} else {				
 				switch (arguments[0]) {
 					case "help":
 						System.out.println(HELP_TEXT);
@@ -95,11 +91,9 @@
 						break;
 				}
 			}
-			
 		}
 		
 		private static void generateMode() throws JsonParseException, JsonMappingException, IOException {
-
 			final GenerateConfigurator config = new GenerateConfigurator();
 			config.load();
 			
@@ -112,7 +106,7 @@
 			Double xbig = config.getConfiguration().getXbig();
 			Double ybig = config.getConfiguration().getYbig();
 			Double speed = config.getConfiguration().getSpeed();
-			Double deltat = config.getConfiguration().getDeltat();
+			//Double deltat = config.getConfiguration().getDeltat();
 			
 			Double mass = config.getConfiguration().getMass();
 			Double massbig = config.getConfiguration().getMassbig();
@@ -175,9 +169,7 @@
 			
 			// Generate input file
 			generateInputFile(particles, n, inputFilename);
-	
 		}
-		
 		
 		private static void simulateMode() throws JsonParseException, JsonMappingException, IOException {
 						
@@ -194,7 +186,6 @@
 			Input in = new Input(inputFilename);
 			List<MassiveParticle> particles = new ArrayList<>();
 			final Generator generator = StaticGenerator.from(particles).over(l).build();
-			
 			
 			PrintWriter pw = new PrintWriter(outputFilename);
 						
@@ -225,9 +216,7 @@
 			PrintWriter pwSpeed3 = new PrintWriter("./resources/data/speed3.txt");
 			
 			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/frequency-of-collisions.txt");
-			
-			
-			
+						
 			for (int i = 0; i < cols.size(); i++) {
 				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/frequency-of-collisions.txt");
 				
@@ -376,7 +365,6 @@
 			}
 			
 		}
-
 		
 		private static void generateInputFile(final List<MassiveParticle> particles, final int N, final String input_filename) throws FileNotFoundException {
 			System.out.println("The output has been written into a file.");
@@ -395,7 +383,7 @@
 						particle.getVx() + " " +
 						particle.getVy() + " " +
 						particle.getMass() + " "
-						);
+				);
 			});
 		}
 		
