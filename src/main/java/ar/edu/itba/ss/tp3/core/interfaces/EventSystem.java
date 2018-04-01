@@ -12,6 +12,6 @@
 	public interface EventSystem<T extends Event> {
 
 		public List<T> bootstrap();
-		public List<T> evolve(final Event event);
+		public List<T> evolve(final Event event, final double baseTime);
 		public boolean isValid(final Event event);
 	}

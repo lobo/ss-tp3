@@ -19,17 +19,23 @@
 		protected final List<Integer> ids;
 		protected final CollisionType type;
 		protected final double time;
+		protected final double baseTime;
 
 		public Collision(final Builder builder) {
 			this.type = builder.type;
 			this.ids = builder.ids;
 			this.collisions = builder.collisions;
 			this.time = builder.time;
+			this.baseTime = builder.baseTime;
 		}
 
 		@Override
 		public double getTime() {
 			return time;
+		}
+
+		public double getBaseTime() {
+			return baseTime;
 		}
 
 		public List<Long> getCollisions() {
@@ -79,6 +85,7 @@
 
 			protected final CollisionType type;
 			protected double time;
+			protected double baseTime;
 			protected List<Long> collisions;
 			protected List<Integer> ids;
 
@@ -102,6 +109,11 @@
 
 			public Builder with(final Long ... collisions) {
 				this.collisions = Arrays.asList(collisions);
+				return this;
+			}
+
+			public Builder baseTime(final double baseTime) {
+				this.baseTime = baseTime;
 				return this;
 			}
 		}
