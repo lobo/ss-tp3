@@ -29,6 +29,8 @@ In the root folder (after build):
 $ java -jar target/tp3-1.0-SNAPSHOT.jar <arguments>
 ```
 
+Possible arguments are: `generate`, `simulate`.
+
 ## Help
 
 ```
@@ -37,11 +39,96 @@ $ java -jar target/tp3-1.0-SNAPSHOT.jar help
 
 ## Input Files Format
 
-...
+### `generate` mode
+
+Receives a JSON file with the following format (see example below):
+
+```json
+{
+	"n"			: "10",
+	"events"		: "100",
+	"tmax"		: "60.0",
+	"l"			: "10.0",
+	"r"			: "0.005",
+	"speed"		: "0.1",
+	"mass"		: "0.0001",
+	"rbig"		: "0.05",
+	"massbig"	: "0.1",
+	"xbig"		: "5.0",
+	"ybig"		: "5.0",
+	"inputfile"	: "input1.data",
+	"outputfile"	: "output1.data",
+	"deltat"		: "0.05"
+}
+```
+
+### `simulate` mode
+
+Receives a JSON file with the following format (see example below):
+
+```json
+{
+	"events"		: "100",
+	"tmax"		: "60.0",
+	"l"			: "10.0",
+	"inputfile"	: "input1.data",
+	"outputfile"	: "output1.data",
+	"deltat"		: "0.05"
+}
+```
 
 ## Output File Format
 
+There are different I/O files used. The format and name of each file is listed below:
+
+### Input file  
+
+```
+<N>
+<x> <y> <r> <vx> <vy> <mass>
 ...
+```
+
+### Output file
+
+* t = 0 comes from the input-file
+
+```
+<event-time-1> <id0> ... <idn>
+<x> <y> <vx> <vy>
+...
+```
+
+### Animated file
+
+```
+<N>
+<t0>
+<x> <y>
+...
+```
+
+### Collisions Frequency file
+
+```
+<event-time-0>
+<event-time-1>
+...
+```
+### Speed file
+
+```
+<speed-1>
+<speed-2>
+...
+```
+### Diffusion file
+
+```
+<t0> <z0^2>
+<t1> <z1^2>
+...
+```
 
 ## Developers
 
