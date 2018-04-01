@@ -116,8 +116,8 @@
 			
 			Double mass = config.getConfiguration().getMass();
 			Double massbig = config.getConfiguration().getMassbig();
-			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString();
-			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString();
+			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString() + ".txt";
+			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString() + ".txt";
 			
 			PrintWriter pw = new PrintWriter(outputFilename);
 			
@@ -152,20 +152,22 @@
 				.limitedByEvents(events)
 				.run();
 					
-			Double cuttingTime = cols.get(cols.size()-1).getTime() / 3;
+			// Add baseTime:
+			Double cuttingTime = (cols.get(cols.size()-1).getTime()+cols.get(cols.size()-1).getBaseTime()) / 3;
 			
 			PrintWriter pwSpeed1 = new PrintWriter("./resources/data/speed1.txt");
 			PrintWriter pwSpeed2 = new PrintWriter("./resources/data/speed2.txt");
 			PrintWriter pwSpeed3 = new PrintWriter("./resources/data/speed3.txt");
 			
-			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/frequency-of-collisions.txt");
+			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/collisions.txt");
 			
 			for (int i = 0; i < cols.size(); i++) {
-				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/frequency-of-collisions.txt");
+				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/collisions.txt");
 				
-				if (cols.get(i).getTime() < cuttingTime) {
+				final double eventTime = cols.get(i).getBaseTime() + cols.get(i).getTime();
+				if (eventTime < cuttingTime) {
 					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "./resources/data/speed1.txt");
-				} else if (cols.get(i).getTime() < cuttingTime * 2) {
+				} else if (eventTime < cuttingTime * 2) {
 					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "./resources/data/speed2.txt");
 				} else {
 					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "./resources/data/speed3.txt");
@@ -187,8 +189,8 @@
 			Long events = config.getConfiguration().getEvents();
 			Double tmax = config.getConfiguration().getTmax();
 			Double l = config.getConfiguration().getL();
-			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString();
-			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString();
+			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString() + ".txt";
+			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString() + ".txt";
 			Double deltat = config.getConfiguration().getDeltat();
 			
 			Input in = new Input(inputFilename);
@@ -218,22 +220,27 @@
 				.limitedByEvents(events)
 				.run();
 			
-			Double cuttingTime = cols.get(cols.size()-1).getTime() / 3;
-			
+			Double cuttingTime = (cols.get(cols.size()-1).getTime()+cols.get(cols.size()-1).getBaseTime()) / 3;
+				
 			PrintWriter pwSpeed1 = new PrintWriter("./resources/data/speed1.txt");
 			PrintWriter pwSpeed2 = new PrintWriter("./resources/data/speed2.txt");
 			PrintWriter pwSpeed3 = new PrintWriter("./resources/data/speed3.txt");
 			
-			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/frequency-of-collisions.txt");
+			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/collisions.txt");
 			
 			
-			
+			/*
+			 * ¿Es necesario imprimir todo o solamente un evento en particular?
+			 * Es decir, solo 3 eventos (1er tercio, 2do y último).
+			 */
 			for (int i = 0; i < cols.size(); i++) {
-				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/frequency-of-collisions.txt");
+				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/collisions.txt");
 				
-				if (cols.get(i).getTime() < cuttingTime) {
+				// Corrección del tiempo de corte:
+				final double eventTime = cols.get(i).getBaseTime() + cols.get(i).getTime();
+				if (eventTime < cuttingTime) {
 					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, "./resources/data/speed1.txt");
-				} else if (cols.get(i).getTime() < cuttingTime * 2) {
+				} else if (eventTime < cuttingTime * 2) {
 					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, "./resources/data/speed2.txt");
 				} else {
 					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, "./resources/data/speed3.txt");
@@ -315,7 +322,8 @@
 		
 		private static void calculateFrequency(Collision col, PrintWriter pw, final String input_filename) {			
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
-				out.write(((Double)col.getTime()).toString() + "\n");
+				// Agrego el 'base-time':
+				out.write(((Double)(col.getTime()+col.getBaseTime())).toString() + "\n");
 			}catch (IOException e) {
 			    e.printStackTrace();
 			}
@@ -364,7 +372,9 @@
 				}
 				String totalIds = ids.toString();
 				
-				out.write(event.getTime() + " " + totalIds + "\n"); 
+				// Línea mágica que arregla todo el bodrio de una:
+				final double eventTime = event.getBaseTime() + event.getTime();
+				out.write(eventTime + " " + totalIds + "\n"); 
 				
 				//LINE 2
 				for(MassiveParticle p: particles){

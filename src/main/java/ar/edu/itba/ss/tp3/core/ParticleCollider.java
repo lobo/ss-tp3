@@ -50,11 +50,11 @@
 
 		@Override
 		public List<Collision> bootstrap() {
-			return imminentCollisions();
+			return imminentCollisions(0);
 		}
 
 		@Override
-		public List<Collision> evolve(final Event event) {
+		public List<Collision> evolve(final Event event, final double baseTime) {
 			final Collision collision = (Collision) event;
 			final double time = collision.getTime();
 			//System.out.println("Evolve to: " + time + " sec.");
@@ -78,7 +78,7 @@
 				}
 
 			spy.accept(collision, this.particles);
-			return imminentCollisions();
+			return imminentCollisions(baseTime);
 		}
 
 		@Override
@@ -97,7 +97,7 @@
 			return true;
 		}
 
-		protected List<Collision> imminentCollisions() {
+		protected List<Collision> imminentCollisions(final double baseTime) {
 			final List<Collision> collisions = new ArrayList<>();
 			int i = 0;
 			for (final MassiveParticle p1 : particles) {
@@ -123,6 +123,7 @@
 						wallCollisions[id2] + particleCollisions[id2];
 				if (!isStale(th, tv, minTc))
 					collisions.add(Collision.type(type)
+						.baseTime(baseTime)
 						.at(impactTime(th, tv, minTc))
 						.of(i, id2)
 						.with(c1, c2)

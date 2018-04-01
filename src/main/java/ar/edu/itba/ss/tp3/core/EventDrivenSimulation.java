@@ -45,7 +45,7 @@
 					if (maxTime < (time + event.getTime())) break;
 					++evolutions;
 					time += event.getTime();
-					final List<? extends Event> nextEvents = system.evolve(event);
+					final List<? extends Event> nextEvents = system.evolve(event, time);
 					events.addAll(nextEvents);
 					System.out.print("\t\tEvolutions: " + evolutions + "\r");
 				}
