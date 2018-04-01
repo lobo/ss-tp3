@@ -267,10 +267,12 @@ import ar.edu.itba.ss.tp3.core.Collision;
 						
 			double xt = 0.0;
 			double yt = 0.0;
+			int frame = 0;
 			
 			// primera parte: usa el input file
 			for (double t1 = 0.0; t1 < cols.get(0).getTime(); t1+= deltat) {
 				for (int j = 0; j < particles.size(); j++) {
+					frame++;
 					MassiveParticle p = particles.get(j);
 					xt = p.getX() + p.getVx() * deltat;
 					yt = p.getY() + p.getVy() * deltat;
@@ -283,7 +285,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 						logDiffusion(t1, xt, yt, pwDiffusionSingle, DIFFUSION_FILE_SINGLE);
 					}*/
 					
-					generateAnimatedFile(j, particles.size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
+					generateAnimatedFile(j, particles.size(), frame, xt, yt, pwAnimated, ANIMATED_FILE);
 				}
 			}
 			
@@ -291,6 +293,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			for (int k = 1; k < cols.size(); k++) {
 				for (double t1 = 0.0; t1 < cols.get(k).getTime() - cols.get(k-1).getTime(); t1+= deltat) {
 					for (int j = 0; j < mps.get(k-1).size(); j++) {
+						frame++;
 						MassiveParticle p = particles.get(j);
 						xt = xt + p.getX() + p.getVx() * deltat;
 						yt = yt + p.getY() + p.getVy() * deltat;
@@ -302,7 +305,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 							logDiffusion(t1, xt, yt, pwDiffusionSingle, DIFFUSION_FILE_SINGLE);
 						}*/
 						
-						generateAnimatedFile(j, mps.get(k-1).size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
+						generateAnimatedFile(j, mps.get(k-1).size(), frame, xt, yt, pwAnimated, ANIMATED_FILE);
 					}
 				}
 			}
@@ -376,12 +379,13 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			
 		}
 		
-		private static void generateAnimatedFile(final Integer iteration, final Integer n, final Double t, Double xt, Double yt, final PrintWriter pw, final String animatedFilename) {
+		private static void generateAnimatedFile(final Integer iteration, final Integer n, final Integer t, Double xt, Double yt, final PrintWriter pw, final String animatedFilename) {
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(animatedFilename, true)))) {
 				if (iteration == 0) {
 					out.write(n.toString() + "\n");
 					out.write(t.toString() + "\n");
 				}
+				System.out.println(t.toString());
 				out.write(xt.toString() + " " + yt.toString() + "\n");
 			}catch (IOException e) {
 			    e.printStackTrace();
