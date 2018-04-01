@@ -262,7 +262,8 @@ import ar.edu.itba.ss.tp3.core.Collision;
 		
 		private static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
 			PrintWriter pwAnimated = new PrintWriter(ANIMATED_FILE);
-			PrintWriter pwDiffusion = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
+			PrintWriter pwDiffusionDistinguished = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
+			PrintWriter pwDiffusionSingle = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
 						
 			double xt = 0.0;
 			double yt = 0.0;
@@ -273,9 +274,14 @@ import ar.edu.itba.ss.tp3.core.Collision;
 					MassiveParticle p = particles.get(j);
 					xt = p.getX() + p.getVx() * deltat;
 					yt = p.getY() + p.getVy() * deltat;
+					
 					if (j == 0) { // it's the distinguished particle
-						logDiffusion(t1, xt, yt, pwDiffusion, DIFFUSION_FILE_DISTINGUISHED);
+						logDiffusion(t1, xt, yt, pwDiffusionDistinguished, DIFFUSION_FILE_DISTINGUISHED);
 					}
+					if (j == 0) { // ACA VA EL j DE LA PARTICULA SELECCIONADA
+						logDiffusion(t1, xt, yt, pwDiffusionSingle, DIFFUSION_FILE_SINGLE);
+					}
+					
 					generateAnimatedFile(particles.size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
 				}
 			}
@@ -287,10 +293,20 @@ import ar.edu.itba.ss.tp3.core.Collision;
 						MassiveParticle p = particles.get(j);
 						xt = xt + p.getX() + p.getVx() * deltat;
 						yt = yt + p.getY() + p.getVy() * deltat;
+						
+						if (j == 0) { // it's the distinguished particle
+							logDiffusion(t1, xt, yt, pwDiffusionDistinguished, DIFFUSION_FILE_DISTINGUISHED);
+						}
+						if (j == 0) { // ACA VA EL j DE LA PARTICULA SELECCIONADA
+							logDiffusion(t1, xt, yt, pwDiffusionSingle, DIFFUSION_FILE_SINGLE);
+						}
+						
 						generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
 					}
 				}
 			}
+			
+			calculateDiffusion(DIFFUSION_FILE_DISTINGUISHED, DIFFUSION_FILE_SINGLE);
 
 			/*
 			 * x(t) = x0 + vx*t
@@ -380,7 +396,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			}
 		}
 		
-		private static void calculateDiffusion(String diffusionDistinguishedFilepath, String diffusionSingleFilepath) {
+		private static void calculateDiffusion(final String diffusionDistinguishedFilepath, final String diffusionSingleFilepath) {
 			File distFilepath = new File(diffusionDistinguishedFilepath);
 			File singleFilepath = new File(diffusionSingleFilepath);
 			
