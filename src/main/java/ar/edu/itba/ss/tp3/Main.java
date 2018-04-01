@@ -16,7 +16,6 @@
 	import com.fasterxml.jackson.core.JsonParseException;
 	import com.fasterxml.jackson.databind.JsonMappingException;
 	
-	import ar.edu.itba.ss.core.Particle;
 	import ar.edu.itba.ss.tp3.core.Collision;
 	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 	import ar.edu.itba.ss.tp3.core.Input;
@@ -73,7 +72,7 @@
 			if (arguments[0].equals("help")) {
 				System.out.println(HELP_TEXT);
 			} else {
-				final long start = System.nanoTime();
+				//final long start = System.nanoTime();
 				
 				switch (arguments[0]) {
 					case "help":
@@ -112,7 +111,7 @@
 			Double xbig = config.getConfiguration().getXbig();
 			Double ybig = config.getConfiguration().getYbig();
 			Double speed = config.getConfiguration().getSpeed();
-			Double deltat = config.getConfiguration().getDeltat();
+			//Double deltat = config.getConfiguration().getDeltat();
 			
 			Double mass = config.getConfiguration().getMass();
 			Double massbig = config.getConfiguration().getMassbig();
@@ -194,7 +193,7 @@
 			Double deltat = config.getConfiguration().getDeltat();
 			
 			Input in = new Input(inputFilename);
-			List<MassiveParticle> particles = new ArrayList<>();
+			List<MassiveParticle> particles = in.getParticles();
 			final Generator generator = StaticGenerator.from(particles).over(l).build();
 			
 			
@@ -202,7 +201,7 @@
 						
 			List<Collision> cols = new ArrayList<Collision>();
 			List<List<MassiveParticle>> mps = new ArrayList<List<MassiveParticle>>();
-			
+
 			EventDrivenSimulation
 				.of(ParticleCollider.of(particles.size()) 
 					.eventSpy((e, ps) -> {
@@ -255,7 +254,7 @@
 		private static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
 			PrintWriter pw = new PrintWriter("./resources/data/animatedFile.data");
 						
-			double t = 0.0;
+			//double t = 0.0;
 			double xt;
 			double yt;
 			
@@ -358,7 +357,7 @@
 		}
 		
 		private static void calculateDiffusion() {
-			
+			// TODO
 		}
 		
 		// wrong parameters, need to change them
