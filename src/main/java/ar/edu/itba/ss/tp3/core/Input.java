@@ -5,11 +5,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Stream;
 
 public class Input {
 	
-	static List<MassiveParticle> particles = new ArrayList<MassiveParticle>();
+	protected final List<MassiveParticle> particles = new ArrayList<MassiveParticle>();
 
 	public Input (String dynamicFilePath) {
 
@@ -44,7 +43,7 @@ public class Input {
 		
 	}
 	
-	public static List<MassiveParticle> getParticles() {
+	public List<MassiveParticle> getParticles() {
 		return particles;
 	}
 	

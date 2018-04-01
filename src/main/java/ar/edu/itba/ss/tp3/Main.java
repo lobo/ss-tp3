@@ -60,6 +60,7 @@
 		}
 	
 		public static void main(final String [] arguments) throws JsonParseException, JsonMappingException, IOException {
+			
 			if (arguments.length == 0) {
 				System.out.println("[FAIL] - No arguments passed. Try 'help' for more information.");
 				exit(EXIT_CODE.NO_ARGS);
@@ -70,7 +71,9 @@
 					
 			if (arguments[0].equals("help")) {
 				System.out.println(HELP_TEXT);
-			} else {				
+			} else {
+				//final long start = System.nanoTime();
+				
 				switch (arguments[0]) {
 					case "help":
 						System.out.println(HELP_TEXT);
@@ -91,9 +94,11 @@
 						break;
 				}
 			}
+			
 		}
 		
 		private static void generateMode() throws JsonParseException, JsonMappingException, IOException {
+
 			final GenerateConfigurator config = new GenerateConfigurator();
 			config.load();
 			
@@ -110,8 +115,8 @@
 			
 			Double mass = config.getConfiguration().getMass();
 			Double massbig = config.getConfiguration().getMassbig();
-			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString() + ".txt";
-			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString() + ".txt";
+			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString();
+			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString();
 			
 			PrintWriter pw = new PrintWriter(outputFilename);
 			
@@ -171,7 +176,9 @@
 			
 			// Generate input file
 			generateInputFile(particles, n, inputFilename);
+	
 		}
+		
 		
 		private static void simulateMode() throws JsonParseException, JsonMappingException, IOException {
 						
@@ -181,19 +188,20 @@
 			Long events = config.getConfiguration().getEvents();
 			Double tmax = config.getConfiguration().getTmax();
 			Double l = config.getConfiguration().getL();
-			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString() + ".txt";
-			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString() + ".txt";
+			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString();
+			String outputFilename = "./resources/data/" + config.getConfiguration().getOutputfile().toString();
 			Double deltat = config.getConfiguration().getDeltat();
 			
 			Input in = new Input(inputFilename);
-			List<MassiveParticle> particles = new ArrayList<>();
+			List<MassiveParticle> particles = in.getParticles();
 			final Generator generator = StaticGenerator.from(particles).over(l).build();
+			
 			
 			PrintWriter pw = new PrintWriter(outputFilename);
 						
 			List<Collision> cols = new ArrayList<Collision>();
 			List<List<MassiveParticle>> mps = new ArrayList<List<MassiveParticle>>();
-			
+
 			EventDrivenSimulation
 				.of(ParticleCollider.of(particles.size()) 
 					.eventSpy((e, ps) -> {
@@ -217,10 +225,6 @@
 			PrintWriter pwSpeed2 = new PrintWriter("./resources/data/speed2.txt");
 			PrintWriter pwSpeed3 = new PrintWriter("./resources/data/speed3.txt");
 			
-<<<<<<< HEAD
-			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/frequency-of-collisions.txt");
-						
-=======
 			PrintWriter collisionsFrequency = new PrintWriter("./resources/data/collisions.txt");
 			
 			
@@ -228,7 +232,6 @@
 			 * ¿Es necesario imprimir todo o solamente un evento en particular?
 			 * Es decir, solo 3 eventos (1er tercio, 2do y último).
 			 */
->>>>>>> 97e2cb0a727938e71f2dc184f5c8ef3a16b78b97
 			for (int i = 0; i < cols.size(); i++) {
 				calculateFrequency(cols.get(i), collisionsFrequency, "./resources/data/collisions.txt");
 				
@@ -251,7 +254,7 @@
 		private static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
 			PrintWriter pw = new PrintWriter("./resources/data/animatedFile.data");
 						
-			double t = 0.0;
+			//double t = 0.0;
 			double xt;
 			double yt;
 			
@@ -354,7 +357,7 @@
 		}
 		
 		private static void calculateDiffusion() {
-			
+			// TODO
 		}
 		
 		// wrong parameters, need to change them
@@ -382,9 +385,10 @@
 			}
 			
 		}
+
 		
 		private static void generateInputFile(final List<MassiveParticle> particles, final int N, final String input_filename) throws FileNotFoundException {
-			System.out.println("The output has been written into a file.");
+			System.out.println("The output has been written into a file:" + input_filename);
 			final String filename = input_filename;
 			File file = new File(filename);
 			FileOutputStream fos = new FileOutputStream(file);
@@ -400,7 +404,7 @@
 						particle.getVx() + " " +
 						particle.getVy() + " " +
 						particle.getMass() + " "
-				);
+						);
 			});
 		}
 		
