@@ -306,7 +306,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 				}
 			}
 			
-			calculateDiffusion(DIFFUSION_FILE_DISTINGUISHED, DIFFUSION_FILE_SINGLE);
+			calculateDiffusion(DIFFUSION_FILE_DISTINGUISHED, DIFFUSION_FILE_SINGLE, DIFFUSION_FILE_TOTAL);
 
 			/*
 			 * x(t) = x0 + vx*t
@@ -396,12 +396,13 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			}
 		}
 		
-		private static void calculateDiffusion(final String diffusionDistinguishedFilepath, final String diffusionSingleFilepath) {
+		private static void calculateDiffusion(final String diffusionDistinguishedFilepath, final String diffusionSingleFilepath, final String finalPathfile) {
 			File distFilepath = new File(diffusionDistinguishedFilepath);
 			File singleFilepath = new File(diffusionSingleFilepath);
 			
 			try { 
-				double radius;
+
+				// parse both files:
 				Scanner distRead = new Scanner(distFilepath);
 				Scanner singleRead = new Scanner(singleFilepath);
 				
@@ -419,15 +420,26 @@ import ar.edu.itba.ss.tp3.core.Collision;
 				distRead.close();
 				singleRead.close();
 				
+				// calculate averages:
 				Double averageDistinguished = calculateAverage(distinguishedZs);
 				Double averageSingle = calculateAverage(singleZs);
+				
+				
+				// log everything in a 3rd file:
+				File file = new File(finalPathfile);
+				FileOutputStream fos = new FileOutputStream(file);
+				PrintStream ps = new PrintStream(fos);
+				System.setOut(ps);
 				
 				System.out.println("Z of the distinguished particle is: " + averageDistinguished);
 				System.out.println("z of the selected particle is: " + averageSingle);
 				System.out.println("Z / z is: " + (averageDistinguished/averageSingle));
+				
 			} catch (Exception e) {
 				System.out.println("Error scanning file");
 			}
+			
+			
 		}
 		
 		private static Double calculateAverage(List <Double> zs) {
