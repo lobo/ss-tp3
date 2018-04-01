@@ -228,7 +228,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 				.limitedByEvents(events)
 				.run();
 			
-			Double cuttingTime = (cols.get(cols.size()-1).getTime()+cols.get(cols.size()-1).getBaseTime()) / 3;
+			Double cuttingTime = (cols.get(cols.size()-1).getTime() + cols.get(cols.size()-1).getBaseTime()) / 3;
 				
 			PrintWriter pwSpeed1 = new PrintWriter(SPEED_FILE + "1.txt");
 			PrintWriter pwSpeed2 = new PrintWriter(SPEED_FILE + "2.txt");
@@ -389,7 +389,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
 				
 				Double z = Math.pow(Math.sqrt(Math.pow(xt, 2) + Math.pow(yt, 2)), 2); // calculate z^2
-				out.write(eventTime.toString() + " " + z.toString()); // log in this format: event_time z
+				out.write(eventTime.toString() + " " + z.toString() + "\n"); // log in this format: event_time z
 				
 			}catch (IOException e) {
 			    e.printStackTrace();
@@ -431,8 +431,8 @@ import ar.edu.itba.ss.tp3.core.Collision;
 				PrintStream ps = new PrintStream(fos);
 				System.setOut(ps);
 				
-				System.out.println("Z of the distinguished particle is: " + averageDistinguished);
-				System.out.println("z of the selected particle is: " + averageSingle);
+				System.out.println("Z of the distinguished particle is: " + averageDistinguished + "\n");
+				System.out.println("z of the selected particle is: " + averageSingle + "\n");
 				System.out.println("Z / z is: " + (averageDistinguished/averageSingle));
 				
 			} catch (Exception e) {
