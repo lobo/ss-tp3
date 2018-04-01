@@ -275,14 +275,15 @@ import ar.edu.itba.ss.tp3.core.Collision;
 					xt = p.getX() + p.getVx() * deltat;
 					yt = p.getY() + p.getVy() * deltat;
 					
+					/*
 					if (j == 0) { // it's the distinguished particle
 						logDiffusion(t1, xt, yt, pwDiffusionDistinguished, DIFFUSION_FILE_DISTINGUISHED);
 					}
 					if (j == 0) { // ACA VA EL j DE LA PARTICULA SELECCIONADA
 						logDiffusion(t1, xt, yt, pwDiffusionSingle, DIFFUSION_FILE_SINGLE);
-					}
+					}*/
 					
-					generateAnimatedFile(particles.size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
+					generateAnimatedFile(j, particles.size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
 				}
 			}
 			
@@ -293,15 +294,15 @@ import ar.edu.itba.ss.tp3.core.Collision;
 						MassiveParticle p = particles.get(j);
 						xt = xt + p.getX() + p.getVx() * deltat;
 						yt = yt + p.getY() + p.getVy() * deltat;
-						
+						/*
 						if (j == 0) { // it's the distinguished particle
 							logDiffusion(t1, xt, yt, pwDiffusionDistinguished, DIFFUSION_FILE_DISTINGUISHED);
 						}
 						if (j == 0) { // ACA VA EL j DE LA PARTICULA SELECCIONADA
 							logDiffusion(t1, xt, yt, pwDiffusionSingle, DIFFUSION_FILE_SINGLE);
-						}
+						}*/
 						
-						generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
+						generateAnimatedFile(j, mps.get(k-1).size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
 					}
 				}
 			}
@@ -375,10 +376,12 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			
 		}
 		
-		private static void generateAnimatedFile(final Integer n, final Double t, Double xt, Double yt, final PrintWriter pw, final String animatedFilename) {
+		private static void generateAnimatedFile(final Integer iteration, final Integer n, final Double t, Double xt, Double yt, final PrintWriter pw, final String animatedFilename) {
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(animatedFilename, true)))) {
-				out.write(n.toString() + "\n");
-				out.write(t.toString() + "\n");
+				if (iteration == 0) {
+					out.write(n.toString() + "\n");
+					out.write(t.toString() + "\n");
+				}
 				out.write(xt.toString() + " " + yt.toString() + "\n");
 			}catch (IOException e) {
 			    e.printStackTrace();
