@@ -271,8 +271,9 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			
 			// primera parte: usa el input file
 			for (double t1 = 0.0; t1 < cols.get(0).getTime(); t1+= deltat) {
+				frame++;
 				for (int j = 0; j < particles.size(); j++) {
-					frame++;
+					
 					MassiveParticle p = particles.get(j);
 					xt = p.getX() + p.getVx() * deltat;
 					yt = p.getY() + p.getVy() * deltat;
@@ -292,8 +293,8 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			// segunda parte
 			for (int k = 1; k < cols.size(); k++) {
 				for (double t1 = 0.0; t1 < cols.get(k).getTime() - cols.get(k-1).getTime(); t1+= deltat) {
+					frame++;
 					for (int j = 0; j < mps.get(k-1).size(); j++) {
-						frame++;
 						MassiveParticle p = particles.get(j);
 						xt = xt + p.getX() + p.getVx() * deltat;
 						yt = yt + p.getY() + p.getVy() * deltat;
@@ -385,6 +386,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 					out.write(n.toString() + "\n");
 					out.write(t.toString() + "\n");
 				}
+				
 				System.out.println(t.toString());
 				out.write(xt.toString() + " " + yt.toString() + "\n");
 			}catch (IOException e) {

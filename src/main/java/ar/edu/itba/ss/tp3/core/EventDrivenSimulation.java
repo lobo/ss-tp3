@@ -5,7 +5,7 @@
 
 	import java.util.List;
 	import java.util.PriorityQueue;
-
+	
 	import ar.edu.itba.ss.tp3.core.interfaces.Event;
 	import ar.edu.itba.ss.tp3.core.interfaces.EventSystem;
 
