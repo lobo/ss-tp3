@@ -275,7 +275,7 @@
 						MassiveParticle p = particles.get(j);
 						xt = p.getX() + p.getVx() * deltat;
 						yt = p.getY() + p.getVy() * deltat;
-						generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pw, "./resources/data/animatedFile.data");
+						//generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pw, "./resources/data/animatedFile.data");
 					}
 				}
 			}
@@ -350,7 +350,7 @@
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(animatedFilename, true)))) {
 				out.write(n.toString() + "\n");
 				out.write(t.toString() + "\n");
-				out.write(xt.toString() + yt.toString() + "\n");
+				out.write(xt.toString() + " " + yt.toString() + "\n");
 			}catch (IOException e) {
 			    e.printStackTrace();
 			}
