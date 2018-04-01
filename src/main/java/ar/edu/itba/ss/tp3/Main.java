@@ -260,10 +260,10 @@
 			PrintWriter pwAnimated = new PrintWriter(ANIMATED_FILE);
 			PrintWriter pwDiffusion = new PrintWriter(DIFFUSION_FILE);
 						
-			double xt;
-			double yt;
+			double xt = 0.0;
+			double yt = 0.0;
 			
-			// primera parte
+			// primera parte: usa el input file
 			for (double t1 = 0.0; t1 < cols.get(0).getTime(); t1+= deltat) {
 				for (int j = 0; j < particles.size(); j++) {
 					MassiveParticle p = particles.get(j);
@@ -278,9 +278,9 @@
 				for (double t1 = 0.0; t1 < cols.get(k).getTime() - cols.get(k-1).getTime(); t1+= deltat) {
 					for (int j = 0; j < mps.get(k-1).size(); j++) {
 						MassiveParticle p = particles.get(j);
-						xt = p.getX() + p.getVx() * deltat;
-						yt = p.getY() + p.getVy() * deltat;
-						//generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pw, ANIMATED_FILE);
+						xt = xt + p.getX() + p.getVx() * deltat;
+						yt = yt + p.getY() + p.getVy() * deltat;
+						generateAnimatedFile(mps.get(k-1).size(), t1, xt, yt, pwAnimated, ANIMATED_FILE);
 					}
 				}
 			}
@@ -296,6 +296,7 @@
 				t1 (hasta evento1) =
 				x(t) = x(t - 1) + deltat * vx(t)
 				y(t) = y(t - 1) + deltat * vy(t)
+				
 				t2 (hasta evento2) =
 				x(t - 1) = lo que te quedo de antes
 				vx(t) = es del evento1
