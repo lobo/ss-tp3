@@ -61,7 +61,6 @@
 			final double σ = particle.radius + radius;
 			final double Δ = ΔvΔr * ΔvΔr - ΔvΔv * (ΔrΔr - σ * σ);
 			if (Δ < 0) return Double.POSITIVE_INFINITY;
-			//System.out.println("Other time: " + (-ΔvΔr - Math.sqrt(Δ)) / ΔvΔv);
 			final double tc1 = (-ΔvΔr - Math.sqrt(Δ)) / ΔvΔv;
 			final double tc2 = (-ΔvΔr + Math.sqrt(Δ)) / ΔvΔv;
 			if (tc1 < 0) return tc2;

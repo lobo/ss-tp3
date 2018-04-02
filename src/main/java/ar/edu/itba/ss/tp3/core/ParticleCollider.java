@@ -95,7 +95,7 @@
 				.map(i -> wallCollisions[i] + particleCollisions[i])
 				.collect(toList());
 			for (int i = 0; i < actualCollisions.size(); ++i)
-				if (collisions.get(i) != actualCollisions.get(i)) {
+				if (collisions.get(i) < actualCollisions.get(i)) {
 					//System.out.println("Invalidated!");
 					//System.out.println("\t" + collision.getBaseTime() + " " + collision.getTime());
 					// Antes decía < en lugar de !=

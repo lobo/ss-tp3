@@ -279,7 +279,7 @@
 					final Collision nextCollision = collisions.get(i + 1);
 					final double limitTime = nextCollision.getBaseTime() + nextCollision.getTime();
 					final List<MassiveParticle> particles = state.get(i);
-					for (final double base = t; t < limitTime; t += (2.0 * Δt)) {
+					for (final double base = t; t < limitTime; t += Δt) {
 						final double Δ = t - base;
 						writer.println(N);
 						writer.println(t);
