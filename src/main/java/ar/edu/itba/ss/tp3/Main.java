@@ -256,7 +256,6 @@
 				}
 				
 			}
-
 			animation(deltat, l, cols, mps);
 		}
 
@@ -287,10 +286,12 @@
 						particles.stream()
 							.map(p -> p.move(Δ))
 							.forEachOrdered(p -> {
-								writer.println(p.getX() + " " + p.getY() + " " + p.getRadius());
+								writer.println(
+									p.getX() + " " + p.getY() + " " +
+									p.getRadius() + " " + p.getSpeed());
 							});
-						writer.println("0.0 0.0 0.001");
-						writer.println(L + " " + L + " 0.001");
+						writer.println("0.0 0.0 0.001 0.0");
+						writer.println(L + " " + L + " 0.001 0.0");
 					}
 				}
 				System.out.println(

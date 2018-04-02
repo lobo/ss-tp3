@@ -96,10 +96,13 @@
 				.collect(toList());
 			for (int i = 0; i < actualCollisions.size(); ++i)
 				if (collisions.get(i) != actualCollisions.get(i)) {
-					// System.out.println("Invalidated!");
+					//System.out.println("Invalidated!");
+					//System.out.println("\t" + collision.getBaseTime() + " " + collision.getTime());
 					// Antes decía < en lugar de !=
 					return false;
 				}
+			//System.out.println("Valid!");
+			//System.out.println("\t" + collision.getBaseTime() + " " + collision.getTime());
 			return true;
 		}
 
@@ -115,6 +118,7 @@
 				for (final MassiveParticle p2 : particles) {
 					if (p1 != p2) {
 						final double tc = p1.timeToCollide(p2);
+						//System.out.println("\tTime to collide: " + tc);
 						if (tc < minTc) {
 							minTc = tc;
 							id2 = j;

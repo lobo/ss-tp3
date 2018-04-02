@@ -1,13 +1,13 @@
 {
-	"n"				: "10",
+	"n"				: "100",
 
-	"events"		: "100",
+	"events"		: "20000",
 	"tmax"			: "60.0",
 	"l"				: "1.0",
 
-	"r"				: "0.005",
-	"speed"			: "0.1",
-	"mass"			: "0.0001",
+	"r"				: "0.015",
+	"speed"			: "0.3",
+	"mass"			: "0.01",
 	"rbig"			: "0.05",
 	"massbig"		: "0.1",
 	"xbig"			: "0.5",
@@ -15,5 +15,5 @@
 
 	"inputfile"		: "input.txt",
 	"outputfile"	: "output.txt",
-	"deltat"		: "0.05"
+	"deltat"		: "0.025"
 }
