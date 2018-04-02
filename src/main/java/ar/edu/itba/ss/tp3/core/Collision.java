@@ -1,7 +1,8 @@
 
 	package ar.edu.itba.ss.tp3.core;
 
-	import java.util.Arrays;
+	import java.util.ArrayList;
+import java.util.Arrays;
 	import java.util.List;
 
 	import ar.edu.itba.ss.tp2.core.Pair;
@@ -91,6 +92,8 @@
 
 			public Builder(final CollisionType type) {
 				this.type = type;
+				this.ids = new ArrayList<>();
+				this.collisions = new ArrayList<>();
 			}
 
 			public Collision build() {

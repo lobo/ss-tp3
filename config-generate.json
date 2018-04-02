@@ -1,16 +1,19 @@
 {
-	"n"			: "10",
+	"n"				: "10",
+
 	"events"		: "100",
-	"tmax"		: "60.0",
-	"l"			: "10.0",
-	"r"			: "0.005",
-	"speed"		: "0.1",
-	"mass"		: "0.0001",
-	"rbig"		: "0.05",
-	"massbig"	: "0.1",
-	"xbig"		: "5.0",
-	"ybig"		: "5.0",
-	"inputfile"	: "input1.data",
-	"outputfile"	: "output1.data",
+	"tmax"			: "60.0",
+	"l"				: "1.0",
+
+	"r"				: "0.005",
+	"speed"			: "0.1",
+	"mass"			: "0.0001",
+	"rbig"			: "0.05",
+	"massbig"		: "0.1",
+	"xbig"			: "0.5",
+	"ybig"			: "0.5",
+
+	"inputfile"		: "input.txt",
+	"outputfile"	: "output.txt",
 	"deltat"		: "0.05"
 }

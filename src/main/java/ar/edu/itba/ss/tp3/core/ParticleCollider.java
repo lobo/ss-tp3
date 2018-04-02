@@ -50,6 +50,10 @@
 
 		@Override
 		public List<Collision> bootstrap() {
+			spy.accept(Collision.type(null)
+					.at(0)
+					.baseTime(0)
+					.build(), this.particles);
 			return imminentCollisions(0);
 		}
 

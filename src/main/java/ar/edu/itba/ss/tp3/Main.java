@@ -12,13 +12,12 @@
 	import java.util.ArrayList;
 
 	import java.util.List;
-import java.util.Scanner;
+	import java.util.Scanner;
 
-import com.fasterxml.jackson.core.JsonParseException;
+	import com.fasterxml.jackson.core.JsonParseException;
 	import com.fasterxml.jackson.databind.JsonMappingException;
 
-import ar.edu.itba.ss.core.Particle;
-import ar.edu.itba.ss.tp3.core.Collision;
+	import ar.edu.itba.ss.tp3.core.Collision;
 	import ar.edu.itba.ss.tp3.core.EventDrivenSimulation;
 	import ar.edu.itba.ss.tp3.core.InputMassiveParticle;
 	import ar.edu.itba.ss.tp3.core.MassiveGenerator;
@@ -36,7 +35,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 	public final class Main {
 		
 		private static final String COLLISIONS_FILE = "./resources/data/collisions.txt";
-		private static final String ANIMATED_FILE = "./resources/data/animatedFile.data";
+		private static final String ANIMATED_FILE = "./resources/data/animation.txt";
 		private static final String DIFFUSION_FILE_DISTINGUISHED = "./resources/data/diffusion-distinguished.txt";
 		private static final String DIFFUSION_FILE_SINGLE = "./resources/data/diffusion-single.txt";
 		private static final String DIFFUSION_FILE_TOTAL = "./resources/data/diffusion-total.txt";
@@ -120,7 +119,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			Double xbig = config.getConfiguration().getXbig();
 			Double ybig = config.getConfiguration().getYbig();
 			Double speed = config.getConfiguration().getSpeed();
-			//Double deltat = config.getConfiguration().getDeltat();
+			Double deltat = config.getConfiguration().getDeltat();
 			
 			Double mass = config.getConfiguration().getMass();
 			Double massbig = config.getConfiguration().getMassbig();
@@ -184,8 +183,8 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			}
 			
 			// Generate input file
-			generateInputFile(particles, n, inputFilename);
-	
+			generateInputFile(particles, particles.size(), inputFilename);
+			animation(deltat, l, cols, mps);
 		}
 		
 		
@@ -255,15 +254,59 @@ import ar.edu.itba.ss.tp3.core.Collision;
 				}
 				
 			}
-			
-			animateMode(particles, cols, mps, deltat);
-						
-		} 
-		
-		private static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
+
+			//animateMode(particles, cols, mps, deltat);
+			animation(deltat, l, cols, mps);
+		}
+
+		/* *******************************************************************/
+
+		protected static void animation(
+				final double Δt, final double L,
+				final List<Collision> collisions,
+				final List<List<MassiveParticle>> state) {
+
+			if (collisions.size() < 2) {
+				System.out.println("Debe haber al menos 2 eventos para animar.");
+				return;
+			}
+			try (final PrintWriter writer =
+					new PrintWriter(new FileWriter(ANIMATED_FILE))) {
+
+				double t = 0;
+				final int N = state.get(0).size() + 2;
+				for (int i = 0; i < collisions.size() - 1; ++i) {
+					final Collision nextCollision = collisions.get(i + 1);
+					final double limitTime = nextCollision.getBaseTime() + nextCollision.getTime();
+					for (final double base = t; t < limitTime; t += Δt) {
+						final List<MassiveParticle> particles = state.get(i);
+						final double Δ = t - base;
+						writer.println(N);
+						writer.println(t);
+						particles.stream()
+							.map(p -> p.move(Δ))
+							.forEachOrdered(p -> {
+								writer.println(p.getX() + " " + p.getY() + " " + p.getRadius());
+							});
+						writer.println("0.0 0.0 0.001");
+						writer.println(L + " " + L + " 0.001");
+					}
+				}
+				System.out.println(
+					"El archivo de animación fue creado con éxito.");
+			}
+			catch (final IOException exception) {
+				System.out.println(
+					"No se pudo generar el archivo de animación.");
+			}
+		}
+
+		/* *******************************************************************/
+
+		public static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
 			PrintWriter pwAnimated = new PrintWriter(ANIMATED_FILE);
-			PrintWriter pwDiffusionDistinguished = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
-			PrintWriter pwDiffusionSingle = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
+			//PrintWriter pwDiffusionDistinguished = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
+			//PrintWriter pwDiffusionSingle = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
 						
 			double xt = 0.0;
 			double yt = 0.0;
@@ -343,16 +386,23 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			}catch (IOException e) {
 			    e.printStackTrace();
 			}
-			 */
-			
-			
-			
-						
+			 */			
 		}
-		
-		
-		
-		
+
+		private static void generateAnimatedFile(final Integer iteration, final Integer n, final Integer t, Double xt, Double yt, final PrintWriter pw, final String animatedFilename) {
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(animatedFilename, true)))) {
+				if (iteration == 0) {
+					out.write(n.toString() + "\n");
+					out.write(t.toString() + "\n");
+				}
+				
+				System.out.println(t.toString());
+				out.write(xt.toString() + " " + yt.toString() + "\n");
+			}catch (IOException e) {
+			    e.printStackTrace();
+			}
+		}
+
 		private static void calculateFrequency(Collision col, PrintWriter pw, final String input_filename) {			
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
 				// Agrego el 'base-time':
@@ -379,22 +429,8 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			}
 			
 		}
-		
-		private static void generateAnimatedFile(final Integer iteration, final Integer n, final Integer t, Double xt, Double yt, final PrintWriter pw, final String animatedFilename) {
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(animatedFilename, true)))) {
-				if (iteration == 0) {
-					out.write(n.toString() + "\n");
-					out.write(t.toString() + "\n");
-				}
 				
-				System.out.println(t.toString());
-				out.write(xt.toString() + " " + yt.toString() + "\n");
-			}catch (IOException e) {
-			    e.printStackTrace();
-			}
-		}
-				
-		private static void logDiffusion(Double eventTime, Double xt, Double yt, PrintWriter pw, final String input_filename) {
+		public static void logDiffusion(Double eventTime, Double xt, Double yt, PrintWriter pw, final String input_filename) {
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
 				
 				Double z = Math.pow(Math.sqrt(Math.pow(xt, 2) + Math.pow(yt, 2)), 2); // calculate z^2
@@ -495,6 +531,9 @@ import ar.edu.itba.ss.tp3.core.Collision;
 			File file = new File(filename);
 			FileOutputStream fos = new FileOutputStream(file);
 			PrintStream ps = new PrintStream(fos);
+			
+			// WTF?
+			PrintStream oldOut = System.out;
 			System.setOut(ps);
 			
 			System.out.println(N);
@@ -508,6 +547,7 @@ import ar.edu.itba.ss.tp3.core.Collision;
 						particle.getMass() + " "
 						);
 			});
+			System.setOut(oldOut);
 		}
 		
 	}
