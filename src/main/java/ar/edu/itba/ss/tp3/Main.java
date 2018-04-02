@@ -13,6 +13,7 @@
 
 	import java.util.List;
 	import java.util.Scanner;
+	import static java.util.stream.Collectors.toList;
 
 	import com.fasterxml.jackson.core.JsonParseException;
 	import com.fasterxml.jackson.databind.JsonMappingException;
@@ -36,9 +37,9 @@
 		
 		private static final String COLLISIONS_FILE = "./resources/data/collisions.txt";
 		private static final String ANIMATED_FILE = "./resources/data/animation.txt";
-		private static final String DIFFUSION_FILE_DISTINGUISHED = "./resources/data/diffusion-distinguished.txt";
-		private static final String DIFFUSION_FILE_SINGLE = "./resources/data/diffusion-single.txt";
-		private static final String DIFFUSION_FILE_TOTAL = "./resources/data/diffusion-total.txt";
+		//private static final String DIFFUSION_FILE_DISTINGUISHED = "./resources/data/diffusion-distinguished.txt";
+		//private static final String DIFFUSION_FILE_SINGLE = "./resources/data/diffusion-single.txt";
+		//private static final String DIFFUSION_FILE_TOTAL = "./resources/data/diffusion-total.txt";
 		private static final String SPEED_FILE = "./resources/data/speed";
 		
 		private static final String HELP_TEXT = "Brownian Motion.\n" +
@@ -120,7 +121,6 @@
 			Double ybig = config.getConfiguration().getYbig();
 			Double speed = config.getConfiguration().getSpeed();
 			Double deltat = config.getConfiguration().getDeltat();
-			
 			Double mass = config.getConfiguration().getMass();
 			Double massbig = config.getConfiguration().getMassbig();
 			String inputFilename = "./resources/data/" + config.getConfiguration().getInputfile().toString();
@@ -147,7 +147,7 @@
 					.eventSpy((e, ps) -> {
 						try {
 							cols.add(e);
-							mps.add(ps);
+							mps.add(ps.stream().collect(toList()));
 							generateOutputFile(e, ps, pw, outputFilename);
 						} catch (FileNotFoundException e1) {
 							e1.printStackTrace();
@@ -186,8 +186,7 @@
 			generateInputFile(particles, particles.size(), inputFilename);
 			animation(deltat, l, cols, mps);
 		}
-		
-		
+
 		private static void simulateMode() throws JsonParseException, JsonMappingException, IOException {
 						
 			final SimulateConfigurator config = new SimulateConfigurator();
@@ -215,11 +214,14 @@
 					.eventSpy((e, ps) -> {
 						try {
 							cols.add(e);
-							mps.add(ps);
+							mps.add(ps.stream().collect(toList()));
+							/*ps.stream().forEachOrdered(p -> {
+								System.out.println(p.getX() + " " + p.getY());
+							});*/
 							generateOutputFile(e, ps, pw, outputFilename);
 						} catch (FileNotFoundException e1) {
 							e1.printStackTrace();
-						} 
+						}
 					})
 					.from(generator)
 					.build())
@@ -255,7 +257,6 @@
 				
 			}
 
-			//animateMode(particles, cols, mps, deltat);
 			animation(deltat, l, cols, mps);
 		}
 
@@ -278,8 +279,8 @@
 				for (int i = 0; i < collisions.size() - 1; ++i) {
 					final Collision nextCollision = collisions.get(i + 1);
 					final double limitTime = nextCollision.getBaseTime() + nextCollision.getTime();
-					for (final double base = t; t < limitTime; t += Δt) {
-						final List<MassiveParticle> particles = state.get(i);
+					final List<MassiveParticle> particles = state.get(i);
+					for (final double base = t; t < limitTime; t += (2.0 * Δt)) {
 						final double Δ = t - base;
 						writer.println(N);
 						writer.println(t);
@@ -293,7 +294,8 @@
 					}
 				}
 				System.out.println(
-					"El archivo de animación fue creado con éxito.");
+					"El archivo de animación (a " +
+					Math.round(1/Δt) + " FPS) fue creado con éxito.");
 			}
 			catch (final IOException exception) {
 				System.out.println(
@@ -302,106 +304,6 @@
 		}
 
 		/* *******************************************************************/
-
-		public static void animateMode(List<MassiveParticle> particles, List<Collision> cols, List<List<MassiveParticle>> mps, Double deltat) throws FileNotFoundException {
-			PrintWriter pwAnimated = new PrintWriter(ANIMATED_FILE);
-			//PrintWriter pwDiffusionDistinguished = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
-			//PrintWriter pwDiffusionSingle = new PrintWriter(DIFFUSION_FILE_DISTINGUISHED);
-						
-			double xt = 0.0;
-			double yt = 0.0;
-			int frame = 0;
-			
-			// primera parte: usa el input file
-			for (double t1 = 0.0; t1 < cols.get(0).getTime(); t1+= deltat) {
-				frame++;
-				for (int j = 0; j < particles.size(); j++) {
-					
-					MassiveParticle p = particles.get(j);
-					xt = p.getX() + p.getVx() * deltat;
-					yt = p.getY() + p.getVy() * deltat;
-					
-					/*
-					if (j == 0) { // it's the distinguished particle
-						logDiffusion(t1, xt, yt, pwDiffusionDistinguished, DIFFUSION_FILE_DISTINGUISHED);
-					}
-					if (j == 0) { // ACA VA EL j DE LA PARTICULA SELECCIONADA
-						logDiffusion(t1, xt, yt, pwDiffusionSingle, DIFFUSION_FILE_SINGLE);
-					}*/
-					
-					generateAnimatedFile(j, particles.size(), frame, xt, yt, pwAnimated, ANIMATED_FILE);
-				}
-			}
-			
-			// segunda parte
-			for (int k = 1; k < cols.size(); k++) {
-				for (double t1 = 0.0; t1 < cols.get(k).getTime() - cols.get(k-1).getTime(); t1+= deltat) {
-					frame++;
-					for (int j = 0; j < mps.get(k-1).size(); j++) {
-						MassiveParticle p = particles.get(j);
-						xt = xt + p.getX() + p.getVx() * deltat;
-						yt = yt + p.getY() + p.getVy() * deltat;
-						/*
-						if (j == 0) { // it's the distinguished particle
-							logDiffusion(t1, xt, yt, pwDiffusionDistinguished, DIFFUSION_FILE_DISTINGUISHED);
-						}
-						if (j == 0) { // ACA VA EL j DE LA PARTICULA SELECCIONADA
-							logDiffusion(t1, xt, yt, pwDiffusionSingle, DIFFUSION_FILE_SINGLE);
-						}*/
-						
-						generateAnimatedFile(j, mps.get(k-1).size(), frame, xt, yt, pwAnimated, ANIMATED_FILE);
-					}
-				}
-			}
-			
-			calculateDiffusion(DIFFUSION_FILE_DISTINGUISHED, DIFFUSION_FILE_SINGLE, DIFFUSION_FILE_TOTAL);
-
-			/*
-			 * x(t) = x0 + vx*t
-			 * y(t) = y0 + vy*t 
-			 * 
-			 * 0 < t < cols.get(cols.size() - 1).getTime()
-			 * usando ese t saco 4 valores
-			 * 
-			 * t0 = input-file
-				t1 (hasta evento1) =
-				x(t) = x(t - 1) + deltat * vx(t)
-				y(t) = y(t - 1) + deltat * vy(t)
-				
-				t2 (hasta evento2) =
-				x(t - 1) = lo que te quedo de antes
-				vx(t) = es del evento1
-				x(t) = x(t - 1) + deltat * vx(t)
-				y(t) = y(t - 1) + deltat * vy(t)
-			 * 
-			 * 
-			 * try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("animatedFile.data", true)))) {
-				out.write(String.valueOf(mps.size()) + "\n"); 
-				out.write(String.valueOf(cycle) + "\n");			  // ciclo
-
-				// position_x position_y
-				for(MobileParticle p: particles){
-					out.write(p.getX() + " " +  p.getY() + "\n");
-				}
-			}catch (IOException e) {
-			    e.printStackTrace();
-			}
-			 */			
-		}
-
-		private static void generateAnimatedFile(final Integer iteration, final Integer n, final Integer t, Double xt, Double yt, final PrintWriter pw, final String animatedFilename) {
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(animatedFilename, true)))) {
-				if (iteration == 0) {
-					out.write(n.toString() + "\n");
-					out.write(t.toString() + "\n");
-				}
-				
-				System.out.println(t.toString());
-				out.write(xt.toString() + " " + yt.toString() + "\n");
-			}catch (IOException e) {
-			    e.printStackTrace();
-			}
-		}
 
 		private static void calculateFrequency(Collision col, PrintWriter pw, final String input_filename) {			
 			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
@@ -430,18 +332,7 @@
 			
 		}
 				
-		public static void logDiffusion(Double eventTime, Double xt, Double yt, PrintWriter pw, final String input_filename) {
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
-				
-				Double z = Math.pow(Math.sqrt(Math.pow(xt, 2) + Math.pow(yt, 2)), 2); // calculate z^2
-				out.write(eventTime.toString() + " " + z.toString() + "\n"); // log in this format: event_time z
-				
-			}catch (IOException e) {
-			    e.printStackTrace();
-			}
-		}
-		
-		private static void calculateDiffusion(final String diffusionDistinguishedFilepath, final String diffusionSingleFilepath, final String finalPathfile) {
+		protected static void calculateDiffusion(final String diffusionDistinguishedFilepath, final String diffusionSingleFilepath, final String finalPathfile) {
 			File distFilepath = new File(diffusionDistinguishedFilepath);
 			File singleFilepath = new File(diffusionSingleFilepath);
 			
@@ -501,18 +392,16 @@
 		// wrong parameters, need to change them
 		private static void generateOutputFile(Collision event, List<MassiveParticle> particles, PrintWriter pw, final String output_filename) throws FileNotFoundException {
 			
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output_filename, true)))) {			
-				// LINE 1
-				StringBuilder ids = new StringBuilder();
-				for (Integer id : event.getIDs()) {
-				    ids.append(id.toString() + " ");
-				}
-				String totalIds = ids.toString();
-				
+			try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output_filename, true)))) {
+
 				// Línea mágica que arregla todo el bodrio de una:
 				final double eventTime = event.getBaseTime() + event.getTime();
-				out.write(eventTime + " " + totalIds + "\n"); 
-				
+				out.write(String.valueOf(eventTime));
+				for (int id : event.getIDs()) {
+					if (id != -1) out.write(" " + id);
+				}
+				out.write("\n"); 
+
 				//LINE 2
 				for(MassiveParticle p: particles){
 					out.write(p.getX() + " " +  p.getY() + " " + p.getVx() + " " + p.getVy() + "\n");
@@ -524,9 +413,8 @@
 			
 		}
 
-		
 		private static void generateInputFile(final List<MassiveParticle> particles, final int N, final String input_filename) throws FileNotFoundException {
-			System.out.println("The output has been written into a file:" + input_filename);
+			System.out.println("The output has been written into a file: " + input_filename);
 			final String filename = input_filename;
 			File file = new File(filename);
 			FileOutputStream fos = new FileOutputStream(file);

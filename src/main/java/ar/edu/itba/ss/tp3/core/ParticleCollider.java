@@ -50,10 +50,11 @@
 
 		@Override
 		public List<Collision> bootstrap() {
-			spy.accept(Collision.type(null)
+			final Collision start = Collision.type(null)
 					.at(0)
 					.baseTime(0)
-					.build(), this.particles);
+					.build();
+			spy.accept(start, this.particles);
 			return imminentCollisions(0);
 		}
 
@@ -94,8 +95,9 @@
 				.map(i -> wallCollisions[i] + particleCollisions[i])
 				.collect(toList());
 			for (int i = 0; i < actualCollisions.size(); ++i)
-				if (collisions.get(i) < actualCollisions.get(i)) {
-					//System.out.println("Invalidated!");
+				if (collisions.get(i) != actualCollisions.get(i)) {
+					// System.out.println("Invalidated!");
+					// Antes decía < en lugar de !=
 					return false;
 				}
 			return true;

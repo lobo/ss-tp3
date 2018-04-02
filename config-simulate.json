@@ -5,5 +5,5 @@
 
 	"inputfile"		: "input.txt",
 	"outputfile"	: "output.txt",
-	"deltat"		: "0.05"
+	"deltat"		: "0.025"
 }
