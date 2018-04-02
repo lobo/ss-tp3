@@ -139,7 +139,10 @@ This project has been built, designed and maintained by the following authors:
 
 ## Videos
 
-...
+* [Video 1](https://www.youtube.com/watch?v=nPM2uZ0EDr0)
+* [Video 2](https://www.youtube.com/watch?v=WNQg-xx5pzw)
+* [Video 3](https://www.youtube.com/watch?v=Xg5UGYwZ5G4)
+* [Video 4](https://www.youtube.com/watch?v=X0D1JBwEPUE)
 
 ## Bibliography
 
