@@ -1,7 +1,7 @@
 {
 	"events"		: "20000",
 	"tmax"			: "60.0",
-	"l"				: "1.0",
+	"l"				: "0.5",
 
 	"inputfile"		: "input.txt",
 	"outputfile"	: "output.txt",

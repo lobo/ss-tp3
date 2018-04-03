@@ -14,10 +14,10 @@
 		coeficiente de difusión, luego de calcular el desplazamiento
 		cuadrático medio.
 
-		@example dcm({'animation.txt'}, id, 9.0, 0.025);
+		@example dcm({'animation.txt'}, id, 9.0, 0.025, x, y);
 	%}
 
-	function [] = dcm(sources, id, time, delta, x, y)
+	function [] = dcm(sources, id, time, delta, x, y, jump)
 
 		% Leer las coordenadas como en trace, de cada archivo
 		% Calcular z^2 para cada coordenada
@@ -29,7 +29,7 @@
 		z2 = [];
 		for k = 1:size(sources, 2)
 			disp(['Reading ', sources{k}, ' ...']);
-			z2(:, k) = getXY(sources{k}, id, time, delta, x, y);
+			z2(:, k) = getXY(sources{k}, id, time, delta, x, y, jump);
 		end
 
 		dcm = mean(z2, 2);
@@ -73,7 +73,7 @@
 		});
 	end
 
-	function [z2] = getXY(source, id, time, delta, x, y)
+	function [z2] = getXY(source, id, time, delta, x, y, jump)
 
 		samples = round(time/delta);
 		file = fopen(source, 'r');

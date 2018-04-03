@@ -19,13 +19,26 @@
 
 		events = [];
 		times = [];
+		%maxSize = -1;
 		for k = 1:size(sources, 2)
 			disp(['Reading ', sources{k}, ' ...']);
 			events(:, k) = table2array(readtable(sources{k}, ...
 				'ReadVariableNames', false, ...
 				'FileType', 'text', ...
 				'Delimiter', '\t'));
-			times(:, k) = events(:, k) - [0; events(1:end - 1, k)];
+			tbc = events(:, k) - [0; events(1:end - 1, k)];
+			times(:, k) = tbc;
+			%{
+			if maxSize < 0
+				times(:, k) = tbc;
+				maxSize = size(times, 1);
+			else
+				maxSize = min([tbc; size(times, 1)], [], 1)
+				times = times(1:maxSize, :);
+				times(:, k) = tbc(1:maxSize);
+			end
+			size(times)
+			%}
 		end
 
 		allTimes = times(:);

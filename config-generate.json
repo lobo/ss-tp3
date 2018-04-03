@@ -3,15 +3,15 @@
 
 	"events"		: "20000",
 	"tmax"			: "60.0",
-	"l"				: "1.0",
+	"l"				: "0.5",
 
-	"r"				: "0.015",
-	"speed"			: "0.3",
-	"mass"			: "0.01",
+	"r"				: "0.005",
+	"speed"			: "0.1",
+	"mass"			: "0.0001",
 	"rbig"			: "0.05",
 	"massbig"		: "0.1",
-	"xbig"			: "0.5",
-	"ybig"			: "0.5",
+	"xbig"			: "0.25",
+	"ybig"			: "0.25",
 
 	"inputfile"		: "input.txt",
 	"outputfile"	: "output.txt",
