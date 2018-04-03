@@ -13,6 +13,7 @@
 
 	import java.util.List;
 	import java.util.Scanner;
+
 	import static java.util.stream.Collectors.toList;
 
 	import com.fasterxml.jackson.core.JsonParseException;
@@ -45,8 +46,7 @@
 		private static final String HELP_TEXT = "Brownian Motion.\n" +
 				"Possible modes: \n" + 
 				"generate\n" +
-				"simulate\n" +
-				"animate\n";
+				"simulate\n";
 	
 		enum EXIT_CODE {
 			NO_ARGS(-1), 
@@ -93,10 +93,6 @@
 					case "simulate":
 						simulateMode();
 						break;
-					/*	
-					case "animate":
-						animateMode();
-						break;*/
 					default:
 						System.out.println("[FAIL] - Invalid argument. Try 'help' for more information.");
 						exit(EXIT_CODE.BAD_ARGUMENT);
@@ -158,32 +154,10 @@
 				.limitedByTime(tmax)
 				.limitedByEvents(events)
 				.run();
-					
-			// Add baseTime:
-			Double cuttingTime = (cols.get(cols.size()-1).getTime()+cols.get(cols.size()-1).getBaseTime()) / 3;
-			
-			PrintWriter pwSpeed1 = new PrintWriter(SPEED_FILE + "1.txt");
-			PrintWriter pwSpeed2 = new PrintWriter(SPEED_FILE + "2.txt");
-			PrintWriter pwSpeed3 = new PrintWriter(SPEED_FILE + "3.txt");
-			
-			PrintWriter collisionsFrequency = new PrintWriter(COLLISIONS_FILE);
-			
-			for (int i = 0; i < cols.size(); i++) {
-				calculateFrequency(cols.get(i), collisionsFrequency, COLLISIONS_FILE);
-				
-				final double eventTime = cols.get(i).getBaseTime() + cols.get(i).getTime();
-				if (eventTime < cuttingTime) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, SPEED_FILE + "1.txt");
-				} else if (eventTime < cuttingTime * 2) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, SPEED_FILE + "2.txt");
-				} else {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, SPEED_FILE + "3.txt");
-				}
-				
-			}
-			
+
 			// Generate input file
 			generateInputFile(particles, particles.size(), inputFilename);
+			speedAndCollisions(cols, mps);
 			animation(deltat, l, cols, mps);
 		}
 
@@ -228,38 +202,59 @@
 				.limitedByTime(tmax)
 				.limitedByEvents(events)
 				.run();
-			
-			Double cuttingTime = (cols.get(cols.size()-1).getTime() + cols.get(cols.size()-1).getBaseTime()) / 3;
-				
-			PrintWriter pwSpeed1 = new PrintWriter(SPEED_FILE + "1.txt");
-			PrintWriter pwSpeed2 = new PrintWriter(SPEED_FILE + "2.txt");
-			PrintWriter pwSpeed3 = new PrintWriter(SPEED_FILE + "3.txt");
-			
-			PrintWriter collisionsFrequency = new PrintWriter(COLLISIONS_FILE);
-			
-			
+
 			/*
 			 * ¿Es necesario imprimir todo o solamente un evento en particular?
 			 * Es decir, solo 3 eventos (1er tercio, 2do y último).
 			 */
-			for (int i = 0; i < cols.size(); i++) {
-				calculateFrequency(cols.get(i), collisionsFrequency, COLLISIONS_FILE);
-				
-				// Corrección del tiempo de corte:
-				final double eventTime = cols.get(i).getBaseTime() + cols.get(i).getTime();
-				if (eventTime < cuttingTime) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed1, SPEED_FILE + "1.txt");
-				} else if (eventTime < cuttingTime * 2) {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed2, SPEED_FILE + "2.txt");
-				} else {
-					calculateSpeed(cols.get(i), mps.get(i), pwSpeed3, SPEED_FILE + "3.txt");
-				}
-				
-			}
+			speedAndCollisions(cols, mps);
 			animation(deltat, l, cols, mps);
 		}
 
 		/* *******************************************************************/
+
+		protected static void speedAndCollisions(
+				final List<Collision> collisions,
+				final List<List<MassiveParticle>> state) {
+
+			try (
+				final PrintWriter speed1 = new PrintWriter(new FileWriter(SPEED_FILE + "1.txt"));
+				final PrintWriter speed2 = new PrintWriter(new FileWriter(SPEED_FILE + "2.txt"));
+				final PrintWriter speed3 = new PrintWriter(new FileWriter(SPEED_FILE + "3.txt"));
+				final PrintWriter events = new PrintWriter(new FileWriter(COLLISIONS_FILE));
+			) {
+
+				final Collision lastCollision = collisions.get(collisions.size() - 1);
+				final double interval = (lastCollision.getTime() + lastCollision.getBaseTime()) / 3;
+				for (int i = 0; i < collisions.size(); ++i) {
+					final Collision collision = collisions.get(i);
+					final List<MassiveParticle> particles = state.get(i);
+					final double time = collision.getBaseTime() + collision.getTime();
+					addCollision(events, collision);
+					if (time < interval) addSpeeds(speed1, particles);
+					else if (time < 2*interval) addSpeeds(speed2, particles);
+					else addSpeeds(speed3, particles);
+				}
+				System.out.println(
+					"Los archivos de velocidades y collisiones fueron creados con éxito.");
+			}
+			catch (final IOException exception) {
+				System.out.println(
+					"No se pudieron generar los archivos de velocidad y colisiones.");
+			}
+		}
+
+		protected static void addCollision(
+				final PrintWriter writer, final Collision collision) {
+			writer.println(collision.getBaseTime() + collision.getTime());
+		}
+
+		protected static void addSpeeds(
+				final PrintWriter writer, final List<MassiveParticle> particles) {
+			particles.stream()
+				.map(p -> p.getSpeed())
+				.forEachOrdered(writer::println);
+		}
 
 		protected static void animation(
 				final double Δt, final double L,
@@ -306,33 +301,6 @@
 
 		/* *******************************************************************/
 
-		private static void calculateFrequency(Collision col, PrintWriter pw, final String input_filename) {			
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
-				// Agrego el 'base-time':
-				out.write(((Double)(col.getTime()+col.getBaseTime())).toString() + "\n");
-			}catch (IOException e) {
-			    e.printStackTrace();
-			}
-		}
-		
-		private static void calculateSpeed(Collision col, List<MassiveParticle> particles, PrintWriter pw, final String input_filename) {
-			List<Double> speedModules = new ArrayList<Double>();
-			
-			
-			for (MassiveParticle p: particles) {
-				speedModules.add(Math.sqrt(Math.pow(p.getVx(), 2) + Math.pow(p.getVy(), 2)));
-			}
-			
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(input_filename, true)))) {
-				for(Double speed: speedModules){
-					out.write(speed.toString() + "\n");
-				}
-			}catch (IOException e) {
-			    e.printStackTrace();
-			}
-			
-		}
-				
 		protected static void calculateDiffusion(final String diffusionDistinguishedFilepath, final String diffusionSingleFilepath, final String finalPathfile) {
 			File distFilepath = new File(diffusionDistinguishedFilepath);
 			File singleFilepath = new File(diffusionSingleFilepath);
