@@ -5,18 +5,22 @@
 
 			<N>
 			<t0>
-			<x> <y>
+			<x> <y> <r> <v>
 			...
 
-		El 'id' especificado puede variar entre 0 y (N - 1). Luego, para cada
-		tiempo se extrae la posición (x, y) de la partícula especificada.
+		El 'id' especificado puede variar entre 0 y (N - 3), debido a que las
+		últimas 2 partículas de cada frame se corresponden con partículas
+		fijas utilizadas para bloquear la celda durante la animacion. Luego,
+		para cada tiempo se extrae la posición (x, y) de la partícula
+		especificada.
 
-		@example trace('animation.data', 0, );
+		@example trace('animation.txt', 0, 0.5);
 	%}
 
 	function [] = trace(source, id, L)
 
 		file = fopen(source, 'r');
+		disp(['Reading ', source, ' ...']);
 		N = str2num(fgetl(file));
 		xy = [];
 
@@ -33,11 +37,12 @@
 			for k = 1:id
 				fgetl(file);
 			end
-			xy(end + 1, 1:2) = str2num(fgetl(file));
+			xyrv = str2num(fgetl(file));
+			xy(end + 1, 1:2) = xyrv(1, 1:2);
 			for k = (id + 1):(N - 1)
 				fgetl(file);
 			end
-			fgetl(file)
+			fgetl(file);
 		end
 
 		fclose(file);
